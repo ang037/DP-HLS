@@ -7,186 +7,204 @@
 
 using namespace std;
 
-void PE (char local_ref_val, char local_query_val, ap_uint<8> up_prev, ap_uint<8> left_prev, ap_uint<8> diag_prev, ap_uint<8> *score, ap_uint<4> *traceback_val){
+void PE (char local_ref_val, char local_query_val, ap_uint<4> up_prev, ap_uint<4> left_prev, ap_uint<4> diag_prev, ap_uint<4> *score, ap_uint<4> *traceback, ap_uint<4> *final){
 
+   //std::cout << "char local_ref_val is" <<  local_ref_val <<"local_query_val is" << local_query_val <<"int up_prev is" << up_prev << "left_prev is" << left_prev << "diag_prev is" << diag_prev << "*score is " << *score << endl;
+    
     //#pragma HLS inline
 
-    ap_int<8> d = left_prev + deletion_score;
-    ap_int<8> i = up_prev + insertion_score;
-    ap_int<8> mi = diag_prev + mismatch_score;
-    ap_int<8> ma = diag_prev + match_score;
-    ap_int<8> max_value = 0;
-    ap_int<8> match = 0;
-    ap_int<8> temp = 0;
+	ap_int<4> d = left_prev + deletion_score;
+	ap_int<4> i = up_prev + insertion_score;
+	ap_int<4> temp = 0;
+    //int max_val = (d > i) ? d : i;
 
-    //std::cout << "d, i, mi, ma is" << d << "\t" << i << "\t" << mi << "\t" << ma << endl;
+	ap_int<4> match = (local_query_val == local_ref_val) ? diag_prev + match_score : diag_prev + mismatch_score;
 
-    //printf("d is %d, i is %d, mi is  %d, ma is %d, max is %d\n", d, i, mi, ma, max_value );
+	ap_int<4> max_value = (((d > i) ? d : i) > match ) ? ((d > i) ? d : i) : match ;
 
-    match = (local_query_val == local_ref_val) ? ma : mi;
+  // printf("d is %d, i is %d, match val is %d, max_value is %d\n", d, i, match, max_value );
 
-    max_value = (( (d>i) ? d : i ) > match ) ? ( (d>i) ? d : i ) : match ;
-
-    //printf("updated max val is %d\n", max_value);
+    *traceback = (max_value == (diag_prev + match_score)) ? 11 : (max_value == d)? 10 : (max_value == i) ? 1 : 2;
 
     // Write back results
+    *score = (max_value < temp) ? temp : max_value;
 
-    *traceback_val = (max_value == i) ? 1 : ((max_value == d) ? 10 : 11);
+    *final = *score;
 
-    *score = ((max_value < temp)? temp : max_value);
+   // printf("score is %d\n", *score);
 
-    //std::cout << "score is" << *score << endl;
-
-    //std::cout << "traceback value is" << *traceback_val << endl;
+    //printf("local_ref_val is %d, local_query_val is %d, int up_prev is %d, int left_prev is %d, int diag_prev is %d, int *score is %d, Ix_prev is %d, int Ix_diag_prev is %d, int *Ix is %d, int Iy_prev is %d, int Iy_diag_prev is %d, int *Iy is %d, int *traceback_val is %d, int *final_value is %d \n", local_ref_val, local_query_val, up_prev, left_prev, diag_prev, *score, Ix_prev, Ix_diag_prev, *Ix, 
+      //      Iy_prev, Iy_diag_prev, *Iy, *traceback_val, *final_value);
 
 }
 
-ap_uint<8> seq_align (char query[query_length], char reference[ref_length], ap_uint<8> dp_matrix1[query_length][ref_length], ap_uint<4> traceback1[query_length-1][ref_length-1])
+void seq_align (char query[query_length], char reference[ref_length], ap_uint<8> *dummy)
 {
 
-/*#pragma HLS INTERFACE m_axi port=query offset=slave bundle=gmem0
-#pragma HLS INTERFACE m_axi port=reference offset=slave bundle=gmem1
-#pragma HLS INTERFACE m_axi port=dp_matrix1 offset=slave bundle=gmem2
-#pragma HLS INTERFACE m_axi port=traceback1 offset=slave bundle=gmem3
+    char local_query[query_length];
+    //#pragma HLS ARRAY_PARTITION variable=local_query dim=0 complete
+    char local_ref[ref_length];
+    //#pragma HLS ARRAY_PARTITION variable=local_ref dim=0 complete
+    ap_uint<4> dp_mem[3][PE_num];
+	#pragma HLS ARRAY_PARTITION variable=dp_mem dim=0 complete
+    ap_uint<4> tb[query_length][ref_length];
+//#pragma HLS ARRAY_PARTITION variable=tb dim=0 complete
+    ap_uint<4> dp_matrix[query_length][ref_length];
+    // last_pe_score[ref_length];
+	//#pragma HLS ARRAY_PARTITION variable=last_pe_score dim=0 complete
 
-#pragma HLS INTERFACE s_axilite port=query bundle=control
-#pragma HLS INTERFACE s_axilite port=reference bundle=control
-#pragma HLS INTERFACE s_axilite port=dp_matrix1 bundle=control
-#pragma HLS INTERFACE s_axilite port=traceback1 bundle=control
-#pragma HLS INTERFACE s_axilite port=return bundle=control*/
+    //std::cout << "query sequence is" << endl;
 
-#pragma HLS INTERFACE bram port=query
-#pragma HLS INTERFACE bram port=reference
-#pragma HLS INTERFACE bram port=dp_matrix1
-#pragma HLS INTERFACE bram port=traceback1
-
-	//std::cout <<"executing the function" << endl;
-
-    ap_uint<8> max_dp = 0;
-    int max_row_value = 0;
-    int max_col_value = 0;
-    char local_query[query_length-1];
-    #pragma HLS ARRAY_PARTITION variable=local_query factor=4 cyclic
-    char local_ref[ref_length-1];
-    #pragma HLS ARRAY_PARTITION variable=local_ref factor=4 cyclic
-    ap_uint<8> dp_matrix[query_length][ref_length];
-	#pragma HLS ARRAY_PARTITION variable=dp_matrix dim=0 complete
-    ap_uint<4> traceback[query_length-1][ref_length-1];
-    #pragma HLS ARRAY_PARTITION variable=traceback dim=1 complete
-
-    local_query_loop: for (int k = 1; k < query_length; k ++){
+    local_query_loop: for (int k = 0; k < query_length; k ++){
         #pragma HLS PIPELINE II=1
-        local_query[k-1] = query[k];
-        //std::cout << local_query[k-1];
-        //printf("%d\t ", local_query[k-1]);
+        local_query[k] = query[k];
+     //   printf("%c\t ", local_query[k]);
     }
 
-    local_ref_loop: for (int g = 1; g < ref_length; g ++){
+   //std::cout << "ref sequence is" << endl;
+
+    local_ref_loop: for (int g = 0; g < ref_length; g ++){
         #pragma HLS PIPELINE II=1
-        local_ref[g-1] = reference[g];
-        //std::cout << local_ref[g-1];
-        //printf("%d\t ", local_ref[g-1]);
+        local_ref[g] = reference[g];
+     //   printf("%c\t ", local_ref[g]);
     }
 
-    //std::cout << "printed local loops" << endl;
+    local_dpmem_loop: for (int gg = 0; gg < 3; gg ++){
+        for (int ij = 0; ij < PE_num; ij++)
+        {
+            //#pragma HLS PIPELINE II=1
+            dp_mem[gg][ij] = 0;
+            //printf("%c\t ", local_ref[g]);
 
-   local_dp_matrix_loop: for (int p = 0; p < query_length; p ++){
-    	for (int s = 0; s < ref_length; s ++){
-    		//#pragma HLS PIPELINE II=1
-    		dp_matrix[p][s] = dp_matrix1[p][s];
-    		//std::cout << dp_matrix[p][s];
-    	}
+        }
     }
 
+    kernel: //for (int qq = 0; qq < query_chunks; qq++){
+//#pragma HLS PIPELINE II=83
 
-    local_traceback_loop: for (int z = 0; z < query_length-1; z ++){
-    	for (int w = 0; w < ref_length-1; w ++){
-    		//#pragma HLS PIPELINE II=1
-    		traceback[z][w] = traceback1[z][w];
-    		//std::cout << dp_matrix[z][w];
-    	}
-    }
+    	for (int ii = 0; ii < (ref_length + PE_num-1); ii ++){
 
-    //std::cout << "reaching to kernel" << endl;
-
-    kernel: for(int ii = 0; ii < query_chunks; ii ++){
-#pragma HLS PIPELINE II=258
-        pe0: for (int i = 0; i < 258; i ++){
-
-        //#pragma HLS LOOP_TRIPCOUNT min=7 max=7
         #pragma HLS PIPELINE II=1
 
-            for (int j = 0; j < PE_num; j ++){
+        for(int kk = 0; kk < PE_num; kk ++){
+		#pragma HLS UNROLL
 
-                if ((i-j) >= 0 && (i-j) < (ref_length-1)){
+            if ((ii-kk) >= 0 && (ii-kk) < ref_length){
 
-                    PE(local_ref[i-j], local_query[j+PE_num*ii], dp_matrix[j+PE_num*ii][i-j+1], dp_matrix[j+1+PE_num*ii][i-j], dp_matrix[j+PE_num*ii][i-j], &dp_matrix[j+1+PE_num*ii][i-j+1], &traceback[j+PE_num*ii][i-j]);
+              //std::cout << "pe num is" << kk <<" and iteration is"<< ii << endl;
 
-                    //std::cout << local_ref[i-j] << "\t" << local_query[j+PE_num*ii] <<"\t" << dp_matrix[j+PE_num*ii][i-j+1] <<"\t" << dp_matrix[j+1+PE_num*ii][i-j] <<"\t" << dp_matrix[j+PE_num*ii][i-j] <<"\t" << dp_matrix[j+1+PE_num*ii][i-j+1] <<"\t" << traceback[j+PE_num*ii][i-j] << endl;
+                if (kk == 0) PE(local_ref[ii-kk], local_query[kk], 0, dp_mem[1][kk], 0, &dp_mem[2][kk], &tb[kk][ii-kk], &dp_matrix[kk][ii-kk]);
 
-                    //std::cout << "iteration " << i << endl;
+                //else if (kk == 0 && qq > 0 && ii == 0) PE(local_ref[ii-kk], local_query[kk+PE_num*qq], last_pe_score[0], 0, 0, &dp_mem[2][kk], &tb[kk+PE_num*qq][ii-kk], &dp_matrix[kk+PE_num*qq][ii-kk]);
+
+                //else if (kk == 0 && qq > 0 && ii > 0) PE(local_ref[ii-kk], local_query[kk+PE_num*qq], last_pe_score[ii], dp_mem[1][kk], last_pe_score[ii-1], &dp_mem[2][kk], &tb[kk+PE_num*qq][ii-kk], &dp_matrix[kk+PE_num*qq][ii-kk]);
+
+                else PE(local_ref[ii-kk], local_query[kk], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], &tb[kk][ii-kk], &dp_matrix[kk][ii-kk]);
+                //std::cout << "Reached here" << endl;
+
+                //if (ii > PE_num - 2 && kk == PE_num -1) last_pe_score[ii-PE_num+1] = dp_mem[2][PE_num-1];
+
+            }
+        }
+
+        for (int ix = 0; ix < PE_num; ix++)
+#pragma HLS UNROLL
+        {
+            dp_mem[0][ix] = dp_mem[1][ix];
+            dp_mem[1][ix] = dp_mem[2][ix];
+            //std::cout << "Reached here" << endl;
+        }
+    }
+
+   //}
+
+    ap_uint<4> max_dp = 0;
+    int max_row_value;
+    int max_col_value;
+
+    	pe1: for (int x = 0; x < query_length; x ++){
+
+           pe2: for (int y = 0; y < ref_length; y ++){
+
+                if (dp_matrix[x][y] > max_dp)
+                {
+                    max_dp = dp_matrix[x][y];
+                    max_row_value = x;
+                    max_col_value = y;
                 }
+
             }
+
         }
-    }
-    
-    pe1: for (int x = 1; x < query_length; x ++){
 
-        pe2: for (int y = 1; y < ref_length; y ++){
+    	//std::cout << "reaching here " << endl;
 
-            if (dp_matrix[x][y] > max_dp)
-            {
-                max_dp = dp_matrix[x][y];
-                max_row_value = x;
-                max_col_value = y;
+    	ap_int<4> max_score = 0;
+        int col_value = max_col_value;
+        int row_value = max_row_value;
+        //printf("%d\t", max_score);
+
+
+        traceback_logic: while (dp_matrix[row_value][col_value] > 0){
+
+
+            if (tb[row_value][col_value] == 2){
+
+                max_score = max_score + mismatch_score;
+                //printf("%d\t", final_matrix[row_value][col_value]);
+                row_value = row_value - 1;
+                col_value = col_value - 1;
+                //std::cout <<"case0 " << max_score << endl;
+                //std::cout <<"row and col is " << row_value << col_value << endl;
             }
-                
+
+            else if (tb[row_value][col_value] == 11){
+
+                max_score = max_score + match_score;
+                //printf("%d\t", final_matrix[row_value][col_value]);
+                row_value = row_value - 1;
+                col_value = col_value - 1;
+                //std::cout <<"case1 " << max_score << endl;
+                //std::cout <<"row and col is " << row_value << col_value <<  endl;
+
+            }
+            else if (tb[row_value][col_value] == 10){
+
+                max_score = max_score + deletion_score;
+                //printf("%d\t", final_matrix[row_value][col_value]);
+                col_value = col_value - 1;
+                //std::cout <<"case2 " << max_score << endl;
+                //std::cout <<"row and col is " << row_value << col_value <<  endl;
+
+            }
+            else if (tb[row_value][col_value] == 1){
+
+                max_score = max_score + insertion_score;
+                //printf("%d\t", final_matrix[row_value][col_value]);
+                row_value = row_value - 1;
+                //std::cout <<"case3 " << max_score << endl;
+                //std::cout <<"row and col is " << row_value << col_value <<  endl;
+
+            }
+
+            if ((row_value+1 ) == 0 || (col_value+1) == 0) break;
         }
 
-    }
+    *dummy = max_score;
 
-    //std::cout << "max_col_value is" << max_col_value << "max row_value is" << max_row_value;
+    /*printf("\nprinting final dp Matrix\n");
+    for (int r = 0; r < query_length; r ++)
+    {
+        for (int s = 0; s < ref_length; s ++){
 
-    ap_uint<8> max_score = dp_matrix[max_row_value][max_col_value];
-    int col_value = max_col_value;
-    int row_value = max_row_value;
-
-    traceback_logic: while (dp_matrix[row_value][col_value] > 0){
-    
-        if (traceback[row_value-1][col_value-1] == 11){
-
-            max_score = max_score + dp_matrix[row_value-1][col_value-1];
-            row_value = row_value - 1;
-            col_value = col_value - 1;
-
+            printf("%d\t", dp_matrix[r][s]);
         }
-        else if (traceback[row_value-1][col_value-1] == 10){
-
-            max_score = max_score + dp_matrix[row_value][col_value-1];
-            col_value = col_value - 1;
-        }
-        else if (traceback[row_value-1][col_value-1] == 01){
-
-            max_score = max_score + dp_matrix[row_value-1][col_value];
-            row_value = row_value - 1;
-        }
-
-        if (dp_matrix[row_value][col_value] == 0) break;
-    }
-
-
-   /*local_dp_matrix1_loop: for (ap_uint<4> u = 0; u < query_length; u ++){
-    	for (ap_uint<8> v = 0; v < ref_length; v ++){
-    		//#pragma HLS PIPELINE II=1
-    		dp_matrix1[u][v] = dp_matrix[u][v];
-    		//printf("%d\t ", local_ref[g-1]);
-    	}
+        printf("\n");
     }*/
 
-
-
- return max_score;
-
 }
+
+
+
 
 
