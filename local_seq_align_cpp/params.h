@@ -1,10 +1,10 @@
-#define insertion_score -1
-#define deletion_score -1
-#define mismatch_score -1
-#define match_score 2
+#define opening_score -2
+#define extend_score -2
+#define mismatch_score -2
+#define match_score 5
 
-#define query_length 4
-#define ref_length 2048
+#define query_length 16
+#define ref_length 8
 
 #define PE_num 4
 
