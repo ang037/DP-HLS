@@ -4,19 +4,19 @@
 #include <cstdlib>
 #include <iostream>
 #include "ap_int.h"
+#include "ap_fixed.h"
 
 using namespace std;
 
 int main ()
 {
+	//initializing query sequence
+	//FIXME - this can also be randomized
     char query_string[query_length] = {'C', 'A', 'G', 'A' , 'C', 'C', 'T', 'A', 'C', 'A', 'G', 'A' , 'C', 'C', 'T', 'A'};
 
     //char reference_string[ref_length] = {'C', 'C', 'G', 'T', 'A', 'C', 'T', 'A'};
 
-    //int dp_matrix[query_length][ref_length];
-
-    //int max_score;
-
+    //generating random reference sequence of given length specified in params.h
     srand(time(NULL));
 
     char reference_string[ref_length];
@@ -25,14 +25,12 @@ int main ()
  
     for (int i = 0; i < ref_length; i++){
         reference_string[i] = alphabet[rand() % 4];
-        //printf("res is %c\t", res[i]);
     }
 
-    ap_int<16> dummy;
+    ap_fixed<M,N> dummy;
 
-    seq_align(query_string, reference_string, &dummy/*traceback, Ix_matrix, Ix_matrix, final_matrix*/ );
-
-    //printf("max score is %d\n", dummy);
+    //calling sequence alignment function
+    seq_align(query_string, reference_string, &dummy);
 
     return 0;
 
