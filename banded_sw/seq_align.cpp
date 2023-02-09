@@ -45,7 +45,7 @@ void PE (char local_ref_val, char local_query_val, ap_int<16> up_prev, ap_int<16
     //final score to be stored in final dp_matrix
     *final = *score;
 
-    printf("local_ref_val is %c, local_query_val is %c, int up_prev is %d, int left_prev is %d, int diag_prev is %d, int *score is %d, *final_value is %d \n", local_ref_val, local_query_val, up_prev, left_prev, diag_prev, *score, *final);
+    //printf("local_ref_val is %c, local_query_val is %c, int up_prev is %d, int left_prev is %d, int diag_prev is %d, int *score is %d, *final_value is %d \n", local_ref_val, local_query_val, up_prev, left_prev, diag_prev, *score, *final);
 
 }
 
@@ -133,35 +133,37 @@ void seq_align (char query[query_length], char reference[ref_length], ap_int<16>
     int fix = 0;
     int incr = 0;
     int incr2 = 0;
-    int incrmid = 0;
     int incr3 = 0;
+    int itrend = 9;
 
     ap_fixed<M,N> last_pe_score[ref_length];
     ap_fixed<M,N> temp;
 
 kernel: for(int qq = 0; qq < query_chunks; qq++){
 
+    incr2 = 0;
+    incr3 = 0 ;
+
 	//kernel computation
     kernel1: for (int ii = 0; ii < (ref_length + PE_num - 1); ii ++){//loop for each diagonals
 
-    printf("%d iteration\n", ii);
+    //printf("%d iteration\n", ii);
 
     #pragma HLS PIPELINE II=1
 
     	incr = (ii%2 == 0 && ii>=PE_num) ? incr+1:incr;
-    	incr2 = (qq==1 && ii%2 == 0 && ii>0) ? incr2+1 : incr2;
-    	incrmid = (qq==2 && ii%2 == 0 && ii>4) ? incrmid+1 : incrmid;
-    	incr3 = (qq==1 && ii%2 == 0 && ii>=8) ? incr3+1 : incr3;
+    	incr2 = (qq > 0 && ii%2 == 0 && ii>((qq-1)*PE_num)) ? incr2+1 : incr2;
+    	incr3 = (qq > 0 && ii%2 == 0 && ii>=itrend-1+(qq-1)*PE_num) ? incr3+1 : incr3;
 
         peloop:for(int kk = 0; kk < PE_num; kk ++){//chain of PEs computing together
 
-        printf("%d PE iteration\n", kk);
+        //printf("%d PE iteration\n", kk);
 
 		#pragma HLS UNROLL
 
         	if(qq == 0){
 
-        		printf("first part of dp matrix\n");
+        		//printf("first part of dp matrix\n");
 
         		if ((ii-kk) >= 0 && (ii-kk) < ref_length){//we don't need all PEs for every diagonal
 
@@ -169,120 +171,120 @@ kernel: for(int qq = 0; qq < query_chunks; qq++){
 
         				if (kk == 0) {//for first PE
 
-        						printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk+fix], kk+fix);
-        						PE(local_ref[ii-kk], local_query[kk+fix], 0, dp_mem[1][kk], 0, &dp_mem[2][kk],/* 0, &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
+        					//printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk+fix], kk+fix);
+        					PE(local_ref[ii-kk], local_query[kk+fix], 0, dp_mem[1][kk], 0, &dp_mem[2][kk],/* 0, &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
         				}
         				else {
 
-        					printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk], kk);
+        					//printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk], kk);
         					PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
         				}
         			}
 
         			else { //FIXME
         					
-        					if (kk >= incr){
-        					printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk+fix], kk+fix);
-        				   PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
+        				if (kk >= incr){
+        				//printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk+fix], kk+fix);
+        				PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
 
         				}
         			}
 
                 }
 
+
+
             }
 
             else if (qq == (query_chunks-1)){
 
-            	printf("last part of dp matrix\n");
+            	//printf("last part of dp matrix\n");
 
             	       if ((ii-kk) >= 0 && (ii-kk) < ref_length){//we don't need all PEs for every diagonal
 
-            	        	if (ii > 3 && ii < 10 && kk <= incrmid){
+            	        	if (ii >= (qq-1)*PE_num && ii < (qq-1)*PE_num + 2*(PE_num-1) && kk <= incr2){
 
             	        			if (kk == 0) {//for first PE
 
             	        				if (ii == 0) {//for subsequent query blocks, for first PE in first diagonal, up_prev is taken from previous query block, diag_prev and left_prev values are zero
-            	        					   printf("incr2 value is %d\n", incr2);
-            	        				       PE(local_ref[ii-kk], local_query[kk+fix], last_pe_score[0], 0, 0, &dp_mem[2][kk],/* last_pe_scoreIx[0], &Ix_mem[1][kk], 0, &Iy_mem[1][kk],*/&tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
+            	        					   //printf("incr2 value is %d\n", incr2);
+            	        				    PE(local_ref[ii-kk], local_query[kk+fix], last_pe_score[0], 0, 0, &dp_mem[2][kk],/* last_pe_scoreIx[0], &Ix_mem[1][kk], 0, &Iy_mem[1][kk],*/&tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
 
-            	        				       temp = last_pe_score[0];
-            	        				 }
-            	        				 else {//for subsequent query blocks, for first PE in next diagonals, up_prev and diag_prev are taken from previous query block, left_prev taken from previous computed diagonal in same query block
-            	        					 	 printf("incr2 value is %d\n", incr2);
-            	        				        PE(local_ref[ii-kk], local_query[kk+fix], last_pe_score[ii], dp_mem[1][kk], temp /*last_pe_score[ii-1]*/, &dp_mem[2][kk], /*last_pe_scoreIx[ii], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk], */&tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
+            	        				    temp = last_pe_score[0];
+            	        				}
+            	        				else {//for subsequent query blocks, for first PE in next diagonals, up_prev and diag_prev are taken from previous query block, left_prev taken from previous computed diagonal in same query block
+            	        					 	//printf("incr2 value is %d\n", incr2);
+            	        				    PE(local_ref[ii-kk], local_query[kk+fix], last_pe_score[ii], dp_mem[1][kk], temp /*last_pe_score[ii-1]*/, &dp_mem[2][kk], /*last_pe_scoreIx[ii], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk], */&tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
 
-            	        				        temp = last_pe_score[ii];//up_prev value will become diag_prev value for next diagonal computation
-            	        				  }
+            	        				    temp = last_pe_score[ii];//up_prev value will become diag_prev value for next diagonal computation
+            	        				}
 
             	        			}
             	        			else {
 
-            	        					printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk], kk);
-            	        					PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
+            	        				//printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk], kk);
+            	        				PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
             	        			}
             	        	}
 
-            	        	else if (ii>= 10){ //FIXME
+            	        	else if (ii>= (qq-1)*PE_num + 2*(PE_num-1)){ //FIXME
 
-            	        				printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk+fix], kk+fix);
-            	        				 PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
+            	        		//printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk+fix], kk+fix);
+            	        		PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
 
             	        	}
 
-            	       }
+            	        }
 
             }
 
         	else {
 
-            	printf("middle part of dp matrix\n");
+            	//printf("middle part of dp matrix\n");
 
             	       if ((ii-kk) >= 0 && (ii-kk) < ref_length){//we don't need all PEs for every diagonal
 
-            	        	if (ii < 6 && kk <= incr2){
+            	        	if (ii >= (qq-1)*PE_num && ii < (qq-1)*PE_num + 2*(PE_num-1) && kk <= incr2){
 
             	        			if (kk == 0) {//for first PE
 
             	        				if (ii == 0) {//for subsequent query blocks, for first PE in first diagonal, up_prev is taken from previous query block, diag_prev and left_prev values are zero
-            	        					   printf("incr2 value is %d\n", incr2);
-            	        				       PE(local_ref[ii-kk], local_query[kk+fix], last_pe_score[0], 0, 0, &dp_mem[2][kk],/* last_pe_scoreIx[0], &Ix_mem[1][kk], 0, &Iy_mem[1][kk],*/&tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
+            	        					   //printf("incr2 value is %d\n", incr2);
+            	        				    PE(local_ref[ii-kk], local_query[kk+fix], last_pe_score[0], 0, 0, &dp_mem[2][kk],/* last_pe_scoreIx[0], &Ix_mem[1][kk], 0, &Iy_mem[1][kk],*/&tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
 
-            	        				       temp = last_pe_score[0];
+            	        				    temp = last_pe_score[0];
             	        				 }
             	        				 else {//for subsequent query blocks, for first PE in next diagonals, up_prev and diag_prev are taken from previous query block, left_prev taken from previous computed diagonal in same query block
-            	        					 	 printf("incr2 value is %d\n", incr2);
-            	        				        PE(local_ref[ii-kk], local_query[kk+fix], last_pe_score[ii], dp_mem[1][kk], temp /*last_pe_score[ii-1]*/, &dp_mem[2][kk], /*last_pe_scoreIx[ii], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk], */&tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
+            	        					 	 //printf("incr2 value is %d\n", incr2);
+            	        				    PE(local_ref[ii-kk], local_query[kk+fix], last_pe_score[ii], dp_mem[1][kk], temp /*last_pe_score[ii-1]*/, &dp_mem[2][kk], /*last_pe_scoreIx[ii], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk], */&tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
 
-            	        				        temp = last_pe_score[ii];//up_prev value will become diag_prev value for next diagonal computation
-            	        				  }
+            	        				    temp = last_pe_score[ii];//up_prev value will become diag_prev value for next diagonal computation
+            	        				}
 
             	        			}
             	        			else {
 
-            	        					printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk], kk);
-            	        					PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
+            	        				//printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk], kk);
+            	        				PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
             	        			}
             	        	}
 
-            	        	else if (ii >= 6 && ii < 8){ //FIXME
+            	        	else if (ii >= (qq-1)*PE_num + 2*(PE_num-1) && ii < itrend-1+(qq-1)*PE_num){ //FIXME
 
-            	        				printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk+fix], kk+fix);
-            	        				 PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
+            	        		//printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk+fix], kk+fix);
+            	        	    PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
 
             	        	}
-                			else if (ii >= 8){ //FIXME
+                			else if (ii >= itrend-1+(qq-1)*PE_num){ //FIXME
 
-                					if (kk >= incr3){
-                						printf("incr3 value is %d\n", incr3);
-                					printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk+fix], kk+fix);
-                				   PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
+                				if (kk >= incr3){
+                					//printf("incr3 value is %d\n", incr3);
+                					//printf("local_ref[ii-kk] is %c, index is %d, local_query[kk] is %c, index is %d\n", local_ref[ii-kk], ii-kk, local_query[kk+fix], kk+fix);
+                				    PE(local_ref[ii-kk], local_query[kk+fix], dp_mem[1][kk-1], dp_mem[1][kk], dp_mem[0][kk-1], &dp_mem[2][kk], /*Ix_mem[0][kk-1], &Ix_mem[1][kk], Iy_mem[0][kk], &Iy_mem[1][kk],*/ &tb[kk+fix][ii-kk], &dp_matrix[kk+fix][ii-kk]);
 
-                					}
+                				}
                 			}
-
             	       }
-
             }
 
         	if (ii > PE_num - 2 && kk == PE_num -1) {//for each query block, last PE scores for each diagonal will be saved and used by next query block
