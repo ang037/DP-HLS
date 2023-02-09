@@ -1,1 +1,69 @@
 # DP-HLS: Dynamic Programming FPGA Acceleration using High-Level Synthesis
+
+HLS Tool: Vitis HLS
+Device: 
+Frequency: 250MHz
+Length of the reference sequence:
+Length of the query sequence:
+Number of Processing Elements (PE):
+Following is the table summarizing the resource usage with various set of sequence alignment algorithms:
+
+<table>  
+<thead> 
+<tr>
+      <th rowspan="2">Sequence Alignment Algorithms</th>
+      <th rowspan="2">Gap Penalty</th>
+      <th rowspan="2">Banding</th>
+      <th colspan='3'>Resource Utilization </th>
+    </tr>
+    <tr>
+   <th>FF</th>
+   <th>LUT</th> 
+    <th>BRAM</th> 
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="4">Smith Waterman</td>
+      <td rowspan="2">Linear</td>
+      <td><input type="text"/>Non Banded</td>
+      <td><input type="text"/></td>
+	 <td><input type="text" /></td>
+	  <td><input type="text" /></td>
+    </tr>
+    <tr>
+      <td><input type="text"/>Banded</td>
+      <td><input type="text" /></td>
+      <td><input type="text" /></td>
+       <td><input type="text" /></td>
+    </tr>
+        <tr>
+      <td rowspan="2">Affine</td>
+      <td><input type="text" />Non Banded</td>
+      <td><input type="text" /></td>
+	 <td><input type="text" /></td>
+	  <td><input type="text" /></td>
+    </tr>
+    <tr>
+      <td><input type="text" />Banded</td>
+      <td><input type="text" /></td>
+      <td><input type="text" /></td>
+       <td><input type="text" /></td>
+    </tr>
+     <tr>
+      <td rowspan="2">Needleman Wunsch</td>
+      <td>Linear</td>
+      <td><input type="text" /></td>
+      <td><input type="text" /></td>
+	 <td><input type="text" /></td>
+	  <td><input type="text" /></td>
+    </tr>
+    <tr>
+      <td>Affine</td>
+      <td><input type="text" /></td>
+      <td><input type="text" /></td>
+      <td><input type="text" /></td>
+       <td><input type="text" /></td>
+    </tr>
+  </tbody>
+</table>
