@@ -1,12 +1,12 @@
 # DP-HLS: Dynamic Programming FPGA Acceleration using High-Level Synthesis
 
-HLS Tool: Vitis HLS
-Device: 
-Frequency: 250MHz
-Length of the reference sequence:
-Length of the query sequence:
-Number of Processing Elements (PE):
-Following is the table summarizing the resource usage with various set of sequence alignment algorithms:
+HLS Tool: Vitis HLS<br>
+Device: <br>
+Frequency: 250MHz <br>
+Length of the reference sequence:<br>
+Length of the query sequence:<br>
+Number of Processing Elements (PE):<br>
+Following is the table summarizing the resource usage with various set of sequence alignment algorithms:<br>
 
 <table>  
 <thead> 
