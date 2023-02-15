@@ -27,9 +27,9 @@ Following is the table summarizing the resource usage with various set of sequen
       <td rowspan="4">Smith Waterman</td>
       <td rowspan="2">Linear</td>
       <td><input type="text"/>Non Banded</td>
-      <td><input type="text"/></td>
-	 <td><input type="text" /></td>
-	  <td><input type="text" /></td>
+      <td><input type="text"/>1939</td>
+	 <td><input type="text" />9067</td>
+	  <td><input type="text" />16</td>
     </tr>
     <tr>
       <td><input type="text"/>Banded</td>
@@ -40,9 +40,9 @@ Following is the table summarizing the resource usage with various set of sequen
         <tr>
       <td rowspan="2">Affine</td>
       <td><input type="text" />Non Banded</td>
-      <td><input type="text" />1939</td>
-	 <td><input type="text" />9067</td>
-	  <td><input type="text" />16</td>
+      <td><input type="text" /></td>
+	 <td><input type="text" /></td>
+	  <td><input type="text" /></td>
     </tr>
     <tr>
       <td><input type="text" />Banded</td>
