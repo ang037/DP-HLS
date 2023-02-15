@@ -3,9 +3,9 @@
 HLS Tool: Vitis HLS<br>
 Device: <br>
 Frequency: 250MHz <br>
-Length of the reference sequence:<br>
-Length of the query sequence:<br>
-Number of Processing Elements (PE):<br>
+Length of the reference sequence:<br> 64
+Length of the query sequence:<br> 64
+Number of Processing Elements (PE):<br> 16
 Following is the table summarizing the resource usage with various set of sequence alignment algorithms:<br>
 
 <table>  
@@ -40,9 +40,9 @@ Following is the table summarizing the resource usage with various set of sequen
         <tr>
       <td rowspan="2">Affine</td>
       <td><input type="text" />Non Banded</td>
-      <td><input type="text" /></td>
-	 <td><input type="text" /></td>
-	  <td><input type="text" /></td>
+      <td><input type="text" />1939</td>
+	 <td><input type="text" />9067</td>
+	  <td><input type="text" />16</td>
     </tr>
     <tr>
       <td><input type="text" />Banded</td>
