@@ -40,9 +40,9 @@ Following is the table summarizing the resource usage with various set of sequen
         <tr>
       <td rowspan="2">Affine</td>
       <td><input type="text" />Non Banded</td>
-      <td><input type="text" /></td>
-	 <td><input type="text" /></td>
-	  <td><input type="text" /></td>
+      <td><input type="text" />4301</td>
+	 <td><input type="text" />16581</td>
+	  <td><input type="text" />32</td>
     </tr>
     <tr>
       <td><input type="text" />Banded</td>
