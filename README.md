@@ -53,9 +53,9 @@ Following is the table summarizing the resource usage with various set of sequen
      <tr>
       <td rowspan="2">Needleman Wunsch</td>
       <td>Linear</td>
-      <td><input type="text" />Non Banded</td>
       <td><input type="text" /></td>
-	 <td><input type="text" /></td>
+      <td><input type="text" />1133</td>
+	 <td><input type="text" />5067</td>
 	  <td><input type="text" /></td>
     </tr>
     <tr>
