@@ -46,9 +46,9 @@ Following is the table summarizing the resource usage with various set of sequen
     </tr>
     <tr>
       <td><input type="text" />Banded</td>
-      <td><input type="text" /></td>
-      <td><input type="text" /></td>
-       <td><input type="text" /></td>
+      <td><input type="text" />1477</td>
+      <td><input type="text" />7599</td>
+       <td><input type="text" />8</td>
     </tr>
      <tr>
       <td rowspan="2">Needleman Wunsch</td>
