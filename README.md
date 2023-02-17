@@ -34,9 +34,9 @@
     </tr>
     <tr>
       <td><input type="text"/>Banded</td>
-      <td><input type="text" />1477</td>
-      <td><input type="text" />7599</td>
-       <td><input type="text" />8</td>
+      <td><input type="text" />4678</td>
+      <td><input type="text" />40880</td>
+       <td><input type="text" />32</td>
     </tr>
         <tr>
       <td rowspan="2">Affine</td>
@@ -47,17 +47,17 @@
     </tr>
     <tr>
       <td><input type="text" />Banded</td>
-      <td><input type="text" />4678</td>
-      <td><input type="text" />40880</td>
-       <td><input type="text" />32</td>
+      <td><input type="text" /></td>
+      <td><input type="text" /></td>
+       <td><input type="text" /></td>
     </tr>
      <tr>
       <td rowspan="2">Needleman Wunsch</td>
       <td>Linear</td>
       <td><input type="text" /></td>
-      <td><input type="text" />1133</td>
-	 <td><input type="text" />5067</td>
-	  <td><input type="text" />0</td>
+      <td><input type="text" /></td>
+	 <td><input type="text" /></td>
+	  <td><input type="text" /></td>
     </tr>
     <tr>
       <td>Affine</td>
