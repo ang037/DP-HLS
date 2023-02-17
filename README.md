@@ -47,9 +47,9 @@
     </tr>
     <tr>
       <td><input type="text" />Banded</td>
-      <td><input type="text" /></td>
-      <td><input type="text" /></td>
-       <td><input type="text" /></td>
+      <td><input type="text" />4678</td>
+      <td><input type="text" />40880</td>
+       <td><input type="text" />32</td>
     </tr>
      <tr>
       <td rowspan="2">Needleman Wunsch</td>
