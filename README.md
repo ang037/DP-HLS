@@ -9,6 +9,8 @@
 
 ### Following is the table summarizing the resource usage with various set of sequence alignment algorithms:<br>
 
+These resource utilization numbers are only for kernels implementing DP matrix and instantiates PEs. Extra numbers for additional logic (such as traceback, etc.) will be added soon. 
+
 <table>  
 <thead> 
 <tr>
@@ -55,9 +57,9 @@
       <td rowspan="2">Needleman Wunsch</td>
       <td>Linear</td>
       <td><input type="text" /></td>
-      <td><input type="text" /></td>
-	 <td><input type="text" /></td>
-	  <td><input type="text" /></td>
+      <td><input type="text" />3358</td>
+	 <td><input type="text" />9384</td>
+	  <td><input type="text" />0</td>
     </tr>
     <tr>
       <td>Affine</td>
