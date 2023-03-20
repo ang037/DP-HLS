@@ -6,7 +6,7 @@
 #define query_length 12
 #define ref_length 12
 
-#define PE_num 4
+#define PE_num 12
 
 #define query_chunks query_length/PE_num
 
