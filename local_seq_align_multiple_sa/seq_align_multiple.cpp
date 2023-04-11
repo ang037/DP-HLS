@@ -57,20 +57,52 @@ void PE (ap_uint<2> local_ref_val, ap_uint<2> local_query_val, type_t up_prev, t
 
 }
 
-void seq_align (ap_uint<2> query[query_length], ap_uint<2> reference[ref_length], type_t dp_mem[3][PE_num], type_t Ix_mem[2][PE_num],
-		type_t Iy_mem[2][PE_num], type_t last_pe_score[ref_length], type_t last_pe_scoreIx[ref_length], type_t *dummy){
+void seq_align (ap_uint<2> query[query_length], ap_uint<2> reference[ref_length], type_t *dummy){
+
+/*#pragma HLS INTERFACE s_axilite port=query bundle=BUS_A
+#pragma HLS INTERFACE s_axilite port=reference bundle=BUS_A
+#pragma HLS INTERFACE s_axilite port=dummy bundle=BUS_A*/
 
     type_t temp = 0;
 
     type_t dp_matrix[query_length][ref_length];
+    type_t dp_mem[3][PE_num];
+    type_t Iy_mem[2][PE_num];
+    type_t Ix_mem[2][PE_num];
+    type_t last_pe_score[ref_length];
+    type_t last_pe_scoreIx[ref_length];
+
+#pragma HLS_RESOURCE variable=dp_matrix core=RAM_1P_BRAM
 
 
-    for (int pp = 0; pp < query_length; pp ++){
+    /*for (int pp = 0; pp < query_length; pp ++){
            for (int rr = 0; rr < ref_length; rr ++)
            {
                dp_matrix[pp][rr] = 0;
            }
-       }
+       }*/
+
+    local_dpmem_loop: for (int gg = 0; gg < 3; gg ++){
+         for (int ij = 0; ij < PE_num; ij++)
+         {
+             dp_mem[gg][ij] = 0;
+         }
+     }
+
+    local_Ixmem_loop: for (int mm = 0; mm < 2; mm ++){
+         for (int nn = 0; nn < PE_num; nn++)
+         {
+             Ix_mem[mm][nn] = 0;
+             Iy_mem[mm][nn] = 0;
+         }
+     }
+
+    for(int ip = 0; ip < ref_length;ip ++){
+
+    	last_pe_score[ip] = 0;
+    	last_pe_scoreIx[ip] = 0;
+    }
+
 
     const type_t zero_fp = 0;
 
@@ -145,10 +177,10 @@ void seq_align (ap_uint<2> query[query_length], ap_uint<2> reference[ref_length]
   }
 
     type_t max_dp = 0;
-    int max_row_value;
-    int max_col_value;
+    int max_row_value = 0;
+    int max_col_value = 0;
 
-    pe1: for (int x = 0; x < query_length; x ++){
+    /*pe1: for (int x = 0; x < query_length; x ++){
 
        pe2: for (int y = 0; y < ref_length; y ++){
 
@@ -161,7 +193,7 @@ void seq_align (ap_uint<2> query[query_length], ap_uint<2> reference[ref_length]
 
         }
 
-    }
+    }*/
 
     type_t max_score = dp_matrix[max_row_value][max_col_value];
     *dummy = max_score;
@@ -219,26 +251,40 @@ void seq_align (ap_uint<2> query[query_length], ap_uint<2> reference[ref_length]
 
 }
 
-void seq_align_multiple(ap_uint<2> chunk1[query_length], ap_uint<2> chunk2[query_length], ap_uint<2> ref1[ref_length], ap_uint<2> ref2[ref_length],
-		type_t dp_mem[3][PE_num], type_t dp_mem2[3][PE_num],
-		type_t Ix_mem[2][PE_num], type_t Ix_mem2[2][PE_num],
-		type_t Iy_mem[2][PE_num],type_t Iy_mem2[2][PE_num],
-		type_t last_pe_score[ref_length], type_t last_pe_score2[ref_length],
-		type_t last_pe_scoreIx[ref_length], type_t last_pe_scoreIx2[ref_length],
-		type_t *dummy_3, type_t *dummy_4){
+void seq_align_multiple(ap_uint<2> chunk1[query_length], ap_uint<2> chunk2[query_length], ap_uint<2> chunk3[query_length], ap_uint<2> chunk4[query_length],
+		ap_uint<2> chunk5[query_length], ap_uint<2> chunk6[query_length], ap_uint<2> chunk7[query_length], ap_uint<2> chunk8[query_length],
+		ap_uint<2> ref1[ref_length], ap_uint<2> ref2[ref_length], ap_uint<2> ref3[ref_length], ap_uint<2> ref4[ref_length],
+		ap_uint<2> ref5[ref_length], ap_uint<2> ref6[ref_length], ap_uint<2> ref7[ref_length], ap_uint<2> ref8[ref_length],
+		type_t *dummy1_out, type_t *dummy2_out, type_t *dummy3_out, type_t *dummy4_out,
+		type_t *dummy5_out, type_t *dummy6_out, type_t *dummy7_out, type_t *dummy8_out){
 
-	type_t dummy1;
-	type_t dummy2;
+/*#pragma HLS INTERFACE s_axilite port=chunk1 bundle=BUS_A
+#pragma HLS INTERFACE s_axilite port=chunk2 bundle=BUS_A
+#pragma HLS INTERFACE s_axilite port=ref1 bundle=BUS_A
+#pragma HLS INTERFACE s_axilite port=ref2 bundle=BUS_A
+#pragma HLS INTERFACE s_axilite port=dummy3 bundle=BUS_A
+#pragma HLS INTERFACE s_axilite port=dummy4 bundle=BUS_A*/
 
-	seq_align(chunk1, ref1, dp_mem, Ix_mem, Iy_mem, last_pe_score, last_pe_scoreIx, &dummy1);
-	seq_align(chunk2, ref2, dp_mem2, Ix_mem2, Iy_mem2, last_pe_score2, last_pe_scoreIx2, &dummy2);
+	type_t dummy1, dummy2, dummy3, dummy4;
+	type_t dummy5, dummy6, dummy7, dummy8;
 
-	*dummy_3 = dummy1;
-	*dummy_4 = dummy2;
-	//seq_align(chunk3, reference_string_comp, dp_mem, Ix_mem, Iy_mem, last_pe_score, last_pe_scoreIx, &dummy[2]);
-	//seq_align(chunk4, reference_string_comp, dp_mem, Ix_mem, Iy_mem, last_pe_score, last_pe_scoreIx, &dummy[3]);
+	seq_align(chunk1, ref1, &dummy1);
+	seq_align(chunk2, ref2, &dummy2);
+	seq_align(chunk3, ref3, &dummy3);
+	seq_align(chunk4, ref4, &dummy4);
+	seq_align(chunk5, ref5, &dummy5);
+	seq_align(chunk6, ref6, &dummy6);
+	seq_align(chunk7, ref7, &dummy7);
+	seq_align(chunk8, ref8, &dummy8);
 
-
+	*dummy1_out = dummy1;
+	*dummy2_out = dummy2;
+	*dummy3_out = dummy3;
+	*dummy4_out = dummy4;
+	*dummy5_out = dummy5;
+	*dummy6_out = dummy6;
+	*dummy7_out = dummy7;
+	*dummy8_out = dummy8;
 }
 
 
