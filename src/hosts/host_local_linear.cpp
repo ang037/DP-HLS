@@ -6,43 +6,17 @@
 #include <algorithm>
 #include <ap_int.h>
 #include <ap_fixed.h>
-#include "../../include/host_utils.h"
+#include "host_utils.h"
 #include "params.h"
 #include <map>
 #include <chrono>
 
-
-int base_to_num(char base){
-    switch (base)
-    {
-    case 'A':
-        return 0;
-    case 'C':
-        return 1;
-    case 'G':
-        return 2;
-    case 'T':
-        return 3;
-    default:
-        return 0;
-#ifdef CMAKEDEBUG
-        throw std::runtime_error("Unrecognized Nucleotide " + std::string(1, base) + " from A, C, G, and T.\n"); // or throw an exception
-#endif
-    }
-}
-
-#define MU 0.7
-#define LAMBDA 0.4
 
 int main(int argc, char **argv) {
     if (argc != 2) {
         std::cout << "Usage: " << argv[0] << " <XCLBIN File>" << std::endl;
         return EXIT_FAILURE;
     }
-
-    char alphabet[] = {'A', 'T', 'C', 'G'};  // currently putting just random sequence here
-    string querys_src = Random::Sequence<4>(alphabet, N_BLOCKS * MAX_QUERY_LENGTH);
-    string references_src = Random::Sequence<4>(alphabet, N_BLOCKS * MAX_REFERENCE_LENGTH);
 
     std::string binaryFile = argv[1];
     cl_int err;
@@ -62,44 +36,28 @@ int main(int argc, char **argv) {
     std::vector<idx_t, aligned_allocator<idx_t>> traceback_start_js(N_BLOCKS);
     std::vector<tbr_t, aligned_allocator<tbr_t>> tb_streams(N_BLOCKS * (MAX_REFERENCE_LENGTH + MAX_QUERY_LENGTH));
 
-    float transition_[5][5] = {
-        {0.8, 0.3, 0.3, 0.3, 0.5},
-        {0.3, 0.3, 0.3, 0.3, 0.5},
-        {0.3, 0.3, 0.8, 0.3, 0.5},
-        {0.3, 0.3, 0.3, 0.8, 0.5},
-        {0.5, 0.5, 0.5, 0.5, 0.8}
-    };
+    
 
-    float log_transitions_[5][5];
-    for (int i = 0; i < 5; i++){
-        for (int j = 0; j < 5; j++){
-            log_transitions_[i][j] = log(transition_[i][j]);
-        }
-    }
-
-    // Struct for Penalties in kernel
-    // Penalties penalties_v[N_BLOCKS];
-    for (int i = 0; i < N_BLOCKS; i++){
+    // Initialize data
+    char alphabet[] = {'A', 'T', 'C', 'G'};  // currently putting just random sequence here
+    string querys_strings = Random::Sequence<4>(alphabet, N_BLOCKS * MAX_QUERY_LENGTH);
+    string references_strings = Random::Sequence<4>(alphabet, N_BLOCKS * MAX_REFERENCE_LENGTH);
+    const char *query_ptr = querys_strings.c_str();
+    const char *reference_ptr = references_strings.c_str();
+    for (int i = 0; i < N_BLOCKS; i++) {
         query_lengths[i] = MAX_QUERY_LENGTH;
         reference_lengths[i] = MAX_REFERENCE_LENGTH;
         for (int j = 0; j < MAX_QUERY_LENGTH; j++) {
-            querys[i * MAX_QUERY_LENGTH + j] = (type_t) base_to_num(querys_src[i * MAX_QUERY_LENGTH + j]);
+            querys[i * MAX_QUERY_LENGTH + j] = (type_t) HostUtils::Sequence::base_to_num(*query_ptr++);
         }
         for (int j = 0; j < MAX_REFERENCE_LENGTH; j++) {
-            references[i * MAX_REFERENCE_LENGTH + j] = (type_t) base_to_num(references_src[i * MAX_REFERENCE_LENGTH + j]);
+            references[i * MAX_REFERENCE_LENGTH + j] = (type_t) HostUtils::Sequence::base_to_num(*reference_ptr++);
         }
-
-        penalties[i].log_mu = log(MU);
-        penalties[i].log_lambda = log(LAMBDA);
-        penalties[i].log_1_m_mu = log(1 - MU);
-        penalties[i].log_1_m_2_lambda = log(1 - 2 * LAMBDA);
-        for (int j = 0; j < 5; j++){
-            for (int k = 0; k < 5; k++){
-                penalties[i].transition[j][k] = log_transitions_[j][k];
-            }
-        }
+        // Initialize Penalties
+        penalties[i].mismatch = type_t(-3);
+        penalties[i].match = type_t(2);
+        penalties[i].linear_gap = type_t(-1);
     }
-
 
     // OPENCL HOST CODE AREA START
     auto devices = xcl::get_xil_devices();
@@ -173,28 +131,12 @@ int main(int argc, char **argv) {
 
     // Print raw traceback pointer streams
     for (int i = 0; i < N_BLOCKS; i++) {
-        std::cout << "Block " << i << " Results" << std::endl;
-        std::cout << "Query: " << std::endl;
-        for (int j = 0; j < MAX_QUERY_LENGTH; j++) {
-            for (int k = 0; k < 5; k++){
-                std::cout << querys[i * MAX_QUERY_LENGTH + j][k] << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-        std::cout << "Reference: " << std::endl;
-        for (int j = 0; j < MAX_REFERENCE_LENGTH; j++) {
-            for (int k = 0; k < 5; k++){
-                std::cout << references[i * MAX_REFERENCE_LENGTH + j][k] << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
+        std::cout << "Query: " << querys_strings.substr(i * MAX_QUERY_LENGTH, MAX_QUERY_LENGTH) << std::endl;
+        std::cout << "Reference: " << references_strings.substr(i * MAX_REFERENCE_LENGTH, MAX_REFERENCE_LENGTH) << std::endl;
         std::cout << "Traceback: " << std::endl;
         for (int j = 0; j < MAX_QUERY_LENGTH + MAX_REFERENCE_LENGTH; j++) {
             std::cout << tb_streams[i * (MAX_QUERY_LENGTH + MAX_REFERENCE_LENGTH) + j];
         }
-        std::cout << std::endl;
         std::cout << std::endl;
     }
 
