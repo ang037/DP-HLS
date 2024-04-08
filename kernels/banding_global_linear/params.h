@@ -6,17 +6,23 @@
 #include <hls_vector.h>
 
 
-#define MAX_QUERY_LENGTH 256
-#define MAX_REFERENCE_LENGTH 256
+#define MAX_QUERY_LENGTH 15
+#define MAX_REFERENCE_LENGTH 15
+
+#define INPUT_QUERY_LENGTH 14
+#define INPUT_REFERENCE_LENGTH 15
 
 #define ALIGN_TYPE GlobalLinear
 #define N_BLOCKS 1
 #define N_LAYERS 1
-const int PE_NUM = 32;
+const int PE_NUM = 3;
 #define LAYER_MAXIMIUM 0  // We need to indicate from which layer (main matrix) is the maximum score stored.
 
-// if user decides to use banding
-#define BANDING Rectangular
+#define BANDING Fixed
+#define BANDWIDTH 3
+
+// This is the typical upperbound of the traceback memory size required for banding kernel
+#define TBMEM_SIZE (MAX_QUERY_LENGTH / PE_NUM * (2 * BANDWIDTH + PE_NUM - 1))
 
 // Primitive Types
 typedef ap_uint<2> char_t;  // Sequence Alphabet
@@ -32,9 +38,13 @@ typedef ap_uint<2> tbp_t;  // Traceback Pointer Type
 #define INF 256
 #define NINF -256
 
+#define TB_PH (tbp_t) 0b00
+#define TB_LEFT (tbp_t) 0b01
+#define TB_DIAG (tbp_t) 0b10
+#define TB_UP (tbp_t) 0b11
+
 // Legacy Debugger Configuration
-#define DEBUG_OUTPUT_PATH "/home/yic033@AD.UCSD.EDU/DP-HLS-Debug/global_affine/"
-#define DEBUG_FILENAME "debug_kernel"
+#define DEBUG_OUTPUT_FILE "/home/centos/workspace/banding/DP-HLS/banding_global_linear_out.txt"
 
 struct ScorePack{  
     type_t score;
