@@ -6,17 +6,16 @@
 #include <hls_vector.h>
 
 
-#define MAX_QUERY_LENGTH 256
-#define MAX_REFERENCE_LENGTH 256
+#define MAX_QUERY_LENGTH 64
+#define MAX_REFERENCE_LENGTH 64
 
-#define ALIGN_TYPE GlobalLinear
+#define ALIGN_TYPE LocalLinear
 #define N_BLOCKS 1
 #define N_LAYERS 1
-const int PE_NUM = 32;
+const int PE_NUM = 4;
 #define LAYER_MAXIMIUM 0  // We need to indicate from which layer (main matrix) is the maximum score stored.
 
-// if user decides to use banding
-#define BANDING Rectangular
+#define BANDING RectangularOpt
 
 // Primitive Types
 typedef ap_uint<2> char_t;  // Sequence Alphabet
@@ -32,9 +31,36 @@ typedef ap_uint<2> tbp_t;  // Traceback Pointer Type
 #define INF 256
 #define NINF -256
 
-// Legacy Debugger Configuration
-#define DEBUG_OUTPUT_PATH "/home/yic033@AD.UCSD.EDU/DP-HLS-Debug/global_affine/"
-#define DEBUG_FILENAME "debug_kernel"
+struct Penalties {
+    type_t mismatch;
+    type_t match;
+    type_t linear_gap;
+};
+
+enum TB_STATE {
+    MM = 0
+};
+
+// Traceback pointer values
+#define TB_END (tbp_t) 0b00
+#define TB_LEFT (tbp_t) 0b01
+#define TB_DIAG (tbp_t) 0b10
+#define TB_UP (tbp_t) 0b11
+
+// >>> Automatically Determined Macros and Configs >>>
+// DO NOT MODIFY
+#define CK_NUM (MAX_QUERY_LENGTH / PE_NUM)
+
+typedef hls::vector<type_t, N_LAYERS> score_vec_t;
+typedef score_vec_t init_col_score_block_t[MAX_QUERY_LENGTH];
+typedef score_vec_t init_row_score_block_t[MAX_REFERENCE_LENGTH];
+typedef score_vec_t wavefront_scores_t[PE_NUM];  // TODO: Change name chunk scores
+typedef score_vec_t wavefront_scores_inf_t[PE_NUM+1];  // chunk column scores inflated
+typedef score_vec_t dp_mem_block_t[PE_NUM+1][2];
+typedef score_vec_t chunk_col_scores_inf_t[PE_NUM+1];  // chunk column scores inflated
+typedef idx_t index_vec_t[PE_NUM];
+typedef tbp_t tbp_vec_t[PE_NUM];
+typedef char_t input_char_block_t[PE_NUM];
 
 struct ScorePack{  
     type_t score;
@@ -54,37 +80,6 @@ struct ScorePack{
         pe = 0;
     }
 };
-
-struct Penalties {
-    type_t open;
-    type_t extend;
-    type_t mismatch;
-    type_t match;
-    type_t linear_gap;
-};
-
-enum TB_STATE {
-    MM = 0,   // Match/Mismatch
-    INS = 1,  // Insertion
-    DEL = 2,  // Deletion
-    END = 3   // End
-};
-
-// >>> Automatically Determined Macros and Configs >>>
-// DO NOT MODIFY
-#define CK_NUM (MAX_QUERY_LENGTH / PE_NUM)
-
-typedef hls::vector<type_t, N_LAYERS> score_vec_t;
-typedef score_vec_t init_col_score_block_t[MAX_QUERY_LENGTH];
-typedef score_vec_t init_row_score_block_t[MAX_REFERENCE_LENGTH];
-typedef score_vec_t wavefront_scores_t[PE_NUM];  // TODO: Change name chunk scores
-typedef score_vec_t wavefront_scores_inf_t[PE_NUM+1];  // chunk column scores inflated
-typedef score_vec_t dp_mem_block_t[PE_NUM+1][2];
-typedef score_vec_t chunk_col_scores_inf_t[PE_NUM+1];  // chunk column scores inflated
-typedef idx_t index_vec_t[PE_NUM];
-typedef tbp_t tbp_vec_t[PE_NUM];
-typedef char_t input_char_block_t[PE_NUM];
-
 
 // Define Traceback Navigation Values
 typedef ap_uint<3> tbr_t;  // Traecback Result Type
