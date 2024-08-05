@@ -1,11 +1,12 @@
 site_name: DP-HLS Docs
 
-# theme: 
-#   name: null
-#   custom_dir: 'cinder'
+theme: 
+  name: null
+  custom_dir: 'cinder'
+  logo: 'assets/dp_hls_logo.png'
+  favicon: 'assets/dp_hls_logo.png'
 
-theme: readthedocs
-
+# theme: readthedocs
 
 # plugins:
 #   - search
