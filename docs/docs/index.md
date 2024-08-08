@@ -1,5 +1,11 @@
 # DP-HLS: A High-Level Synthesis Framework for Accelerating Dynamic Programming Algorithms in Bioinformatics
 
+<div align="center">
+
+<img src="images/dp_hls_logo.png"width="200" height="200" />
+
+</div>
+
 ## Introduction
 
 Welcome to the official Wiki of DP-HLS. DP-HLS is a framework designed to simplify and accelerate the development of a
@@ -11,25 +17,92 @@ broad set of bioinformatically relevant DP algorithms based on the 2-D DP paradi
 new algorithms. To implement any custom algorithm, only the scoring functions and a few parameters need to be modified without requiring an in-depth RTL or digital design experience.
 2. **Easy deployment into hardware**: The framework allows the user to implement highly customized FPGA kernels to deploy within days, whereas developing in HDL takes months.
 3. **Supports complex 2-D DP based algorithms**: DP-HLS supports Viterbi Algorithm, Multiple Sequence Alignment and Dynamic Time Warping Algorithms in a common framework for the first time. 
-4. **Faster kernels compared to baselines**: DP-HLS based kernel implementation showed up to 32x improvements over CPU baselines
-and comparable results (within XX to XX margin) to hand-crafted RTL versions, with the added benefit of easier reconfigurability.
+4. **Faster kernels compared to baselines**: DP-HLS based kernel implementation showed up to 32x improvements over CPU baselines and comparable results (within XX to XX margin) to hand-crafted RTL versions, with the added benefit of easier reconfigurability.
 
 ## How it works
 
-### 2-D Dynamic Programming Paradigm and Variations
+### 2-D Dynamic Programming Paradigm
+
+<div align="center">
+
+<img src="images/dp_steps.png"width="600" height="100" />
+
+</div>
+
+<br>
 
 Many bioinformatics problems involve comparing linear biological sequences (DNA, RNA, proteins) to identify similarities and differences. A common approach to this problem is using 2-D dynamic programming (DP) algorithms (2-D DP paradigm), which typically consists of three steps: i) initialization, ii) matrix fill, and iii) traceback. 
 
 The initialization step arranges the two sequences being compared on a 2-D grid, called DP matrix, with one sequence along the horizontal axis and the other along the vertical axis. The first row and column are initialized with predefined scores. Next, in the matrix fill step, a recursive formula is used to score each cell based on its three neighboring cells: above, left, and diagonal, allowing for ’gaps’ in sequences. Finally, the traceback step, which is optional in some algorithms, recovers the path in the DP matrix corresponding to the sequence of decisions giving the overall optimal score. 
 
-Variations in these general algorithmic paradigm has led to wide variety of algorithms used by bioinformatics tools.
+### Variations in 2-D Dynamic Programming algorithms
+
+Variations in general paradigm of 2-D Dynamic Programming has led to wide variety of algorithms used by bioinformatics tools in various applications. Some of the variations are listed below:
+
+#### Variations in Initialization Step
+
+<div align="center">
+
+<img src="images/background_variation_initialization.png"width="400" height="300" />
+
+</div>
+
+<br>
+
+The scoring equations also define how the initial row and column are scored. Depending on which traceback strategy (described below) is used, the scores could be a constant (e.g., 0 or -∞) or a function of the gap penalties.
+
+#### Variations in Traceback Step
+
+<div align="center">
+
+<img src="images/background_variation_traceback.png"width="500" height="100" />
+
+</div>
+
+<br>
+
+Traceback step determine the path that results in the optimal score. While the recurrence scoring equations specify the optimal transitions on a path, depending on the property desired, the traceback strategy could determine where to start and end the traceback path. There are variations seen in the traceback step for four categories of alignments algorithms: global, local, semi-global, and overlap. 
+
+1. Global strategy performs end-to-end comparison of sequences, with traceback starting from the bottom-right cell of the 2-D DP matrix to the top-left cell. This is commonly used when two corresponding sequences, e.g., gene sequences, are being compared. 
+2. Local strategy finds the most similar subsequences and is ideally suited for identifying conserved motifs or functional regions in sequences. Here, the traceback begins from the highest-scoring cell and stops at a 0-scoring cell.
+3. Semi-global strategy allows paths spanning one sequence end-to-end with a sub-sequence of the other. Here, the traceback begins from the highest-scoring cell in the bottom row of the 2-D DP matrix and continues to the top row. 
+4. Overlap strategy matches sub-sequences at the beginning of one sequence and at the end of the other. This algorithm finds applications in genome assembly. Here, the traceback starts from the highest-scoring cell in the rightmost column (bottom row) of the 2-D DP matrix and continues to the top row (leftmost column).
+
+#### Variations in Scoring Logic
+
+<div align="center">
+
+<img src="images/background_variation_scoring.png"width="8000" height="300" />
+
+</div>
+
+<br>
+
+Scoring of the cells in the 2-D DP paradigm refers to the recurrence equations used to calculate the individual scores of cells in the 2-D grid. Equations reward matches or similarities of characters in the two sequences being compared and penalize mismatches or gaps. Several variations of scoring strategies are commonly used in bioinformatics applications as shown in the above figure.
+
+#### Variations in Input Alphabets
+
+<div align="center">
+
+<img src="images/background_variation_input.png"width="8000" height="300" />
+
+</div>
+
+<br>
+
+An alphabet refers to the set of characters used to represent the sequences being compared, such as DNA, RNA, or protein sequences, which consists of 4 or 20 characters, although variations may exist. In DNA based kernel algorithms, sequences are represented as 4 different nucleotides, with extra N representing the ambiguous bases. Multiple sequence alignment inputs are represented as profiles which is a tuple of 5 (21) integers, referring to the frequencies of 4 nucleotides. For RNA based alignments, inputs alphabets are represented as 20 different characters corresponding to amino acids. Dynamic Time Warping based alignments, used in signal processing to compare two time-series signals, uses real or complex number values as input alphabets. 
 
 ### DP-HLS Framework
 
-The DP-HLS framework is composed of two main components: the front-end and the back-end. The front-end component allows users  to specify new kernels in C/C++ without requiring a background in HLS or digital design. It also supports device-host co-simulation, verification, and FPGA deployment of the synthesized designs. Fig. 2 depicts the various stages of the front-end design flow. The initial stage involves configuring the HLS framework according to the specifications of the new kernel to be implemented. Subsequent stages include pre-synthesis simulation, synthesis, post-synthesis co-simulation that incorporates
-the host code, and FPGA deployment.
+<div align="center">
 
- The back-end component contains a fixed set of HLS directives that provide the HLS compiler with the necessary hints to efficiently map the front-end specification into an optimized RTL implementation. 
+<img src="images/implementation_image-1.png"width="1000" height="300" />
+
+</div>
+
+The DP-HLS framework is composed of two main components: the front-end and the back-end. The front-end component allows users  to specify new kernels in C/C++ without requiring a background in HLS or digital design. It also supports device-host co-simulation, verification, and FPGA deployment of the synthesized designs. Fig. 2 depicts the various stages of the front-end design flow. The initial stage involves configuring the HLS framework according to the specifications of the new kernel to be implemented. Subsequent stages include pre-synthesis simulation, synthesis, post-synthesis co-simulation that incorporates the host code, and FPGA deployment.
+
+The back-end component contains a fixed set of HLS directives that provide the HLS compiler with the necessary hints to efficiently map the front-end specification into an optimized RTL implementation. 
 
 ## Installation Guide
 
@@ -118,12 +191,8 @@ enum TB_STATE {
 
 #### 6. Specify Band Width (for banding kernels)
 
-
-
-
-
-
-
+DP-HLS allows user to opt the banding search space pruning strategy in their custom kernel by setting the macros
+BANDING to FIXED and BANDWIDTH to the desired band size. Macro BANDING is set to RECTANGULAR by default or if no banding is needed.
 
 ### Step 2: Initialize row and column scores
 
@@ -222,6 +291,9 @@ The scheduling of the host application can impact device utilization; therefore,
 
 ## Source Code Documentation
 To refer to the details of the source code for using the DP-HLS framework efficiently, please refer to [Source Code Documentation](./doxygen/html/index.html)
+
+## Section for Artifact Evaluators
+
 
 ## Contributions
 
