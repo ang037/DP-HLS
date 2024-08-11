@@ -28,7 +28,10 @@ Welcome to the official repository of DP-HLS, a framework designed to accelerate
 <br>
 
 ## <a name="install"></a> Quick Install
-
+Clone the DP-HLS repository:
+```git clone --recursive https://github.com/DP-HLS
+cd DP-HLS
+```
 <br>
 
 ## <a name="start"></a> Quick Start
