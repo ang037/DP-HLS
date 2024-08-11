@@ -19,13 +19,57 @@ new algorithms. To implement any custom algorithm, only the scoring functions an
 3. **Supports complex 2-D DP based algorithms**: DP-HLS supports Viterbi Algorithm, Multiple Sequence Alignment and Dynamic Time Warping Algorithms in a common framework for the first time. 
 4. **Faster kernels compared to baselines**: DP-HLS based kernel implementation showed up to 32x improvements over CPU baselines and comparable results (within XX to XX margin) to hand-crafted RTL versions, with the added benefit of easier reconfigurability.
 
+## Getting Started
+
+To get started with DP-HLS, follow these steps:
+
+**Step 1: Clone the DP-HLS repository from GitHub.**
+
+```
+git clone 
+```
+
+**Step 2: Install the required dependencies.**
+
+TBD
+
+For more details on installation, check this section below - [Installation Guide](#installation-guide).
+
+**Step 3: Customize your own kernels using DP-HLS framework.**
+
+TBD
+
+Modify the parameters in `params.h` file as per your use-case before running our code. Currently our code generates random query and reference sequences as the inputs. You can configure this by reading the sequences from an input file in `seq_align_test.cpp`
+
+Create a project in Xilinx Vitis HLS tool and select our code as source files. Select a device and clock frequency, then synthesize the code.
+
+More details on customization of kernels can be found in this section below - [Customize new kernels](#customize-new-kernels).
+
+**Step 4: Synthesize your kernel using the DP-HLS framework.**
+
+TBD 
+
+For more details, check this section below - [Synthesize new kernels](#simulate-and-synthesize-new-kernels).
+
+**Step 5: Test and verify your implementation.**
+
+TBD
+
+For more details on each and every generated output files, check this section below - [Analyze Output](#analyze-output).
+
+**Step 6: Deploy your FPGA-accelerated kernel.**
+
+TBD
+
+Check this section below for more details - [Deploy new kernels to FPGA](#deploy-new-kernels-to-fpga).
+
 ## How it works
 
 ### 2-D Dynamic Programming Paradigm
 
 <div align="center">
 
-<img src="images/dp_steps.png"width="600" height="100" />
+<img src="images/dp_steps.png"width="600" height="350" />
 
 </div>
 
@@ -43,7 +87,7 @@ Variations in general paradigm of 2-D Dynamic Programming has led to wide variet
 
 <div align="center">
 
-<img src="images/background_variation_initialization.png"width="400" height="300" />
+<img src="images/background_variation_initialization.png"width="400" height="400" />
 
 </div>
 
@@ -55,7 +99,7 @@ The scoring equations also define how the initial row and column are scored. Dep
 
 <div align="center">
 
-<img src="images/background_variation_traceback.png"width="500" height="100" />
+<img src="images/background_variation_traceback.png"width="500" height="420" />
 
 </div>
 
@@ -72,7 +116,7 @@ Traceback step determine the path that results in the optimal score. While the r
 
 <div align="center">
 
-<img src="images/background_variation_scoring.png"width="8000" height="300" />
+<img src="images/background_variation_scoring.png"width="700" height="600" />
 
 </div>
 
@@ -84,7 +128,7 @@ Scoring of the cells in the 2-D DP paradigm refers to the recurrence equations u
 
 <div align="center">
 
-<img src="images/background_variation_input.png"width="8000" height="300" />
+<img src="images/background_variation_input.png"width="700" height="250" />
 
 </div>
 
@@ -96,7 +140,7 @@ An alphabet refers to the set of characters used to represent the sequences bein
 
 <div align="center">
 
-<img src="images/implementation_image-1.png"width="1000" height="300" />
+<img src="images/implementation_image-1.png"width="1000" height="250" />
 
 </div>
 
@@ -105,9 +149,6 @@ The DP-HLS framework is composed of two main components: the front-end and the b
 The back-end component contains a fixed set of HLS directives that provide the HLS compiler with the necessary hints to efficiently map the front-end specification into an optimized RTL implementation. 
 
 ## Installation Guide
-
-## Quick Start
-
 
 ## Customize new Kernels
 
@@ -283,9 +324,9 @@ After completing the device specification, the user must also define the host ap
 
 The scheduling of the host application can impact device utilization; therefore, for optimal performance, it should be designed to process batches of input sequences and use multi-threading to leverage the NK independent channels available on the device. 
 
-## Synthesize and Deploy new Kernels
+## Simulate and Synthesize new Kernels
 
-### Step 1: Building and simulating new custom kernels
+### Step 1: Simulate new custom kernels
 In the top directory, the file `CMakeLists.txt` contains the build information and files required to run DP-HLS. There are two lines in that file which indicate which platform we are building on: RAPTOR (which is our standard UNIX platform) and F1 (which is the AWS UNIX  platform). If you are on RAPTOR, you should set 
 
 ```bash
@@ -303,17 +344,20 @@ make
 ```
 This will build all the different types of kernels available, along with their respective testbenches, params, and PE/traceback files. Each testbench performs pairwise alignment on a particular set of sequences and prints the optimal alignment, optionally printing the DP matrix scores if the user wishes. Simply comment out the kernels that you don't wish to build and their dependencies for faster build times.
 
-### Step 2: Synthesizing new kernels
+### Step 2: Synthesize new kernels
 
-### Step 3: Deploying new kernels to hardware platforms
+TBD
 
-## Analyze Outputs
+## Analyze Output
+
+TBD
+
+## Deploy new kernels to FPGA
+
+TBD
 
 ## Source Code Documentation
 To refer to the details of the source code for using the DP-HLS framework efficiently, please refer to [Source Code Documentation](./doxygen/html/index.html)
-
-## Section for Artifact Evaluators
-
 
 ## Contributions
 
