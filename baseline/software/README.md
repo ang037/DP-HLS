@@ -5,14 +5,9 @@
 2. **cmake:** `3.16.3`
 3. **python3-pip**
 
-#### Clone DP-HLS repository
+#### Baseline Quick Start
 ```
-git clone --recursive https://github.com/TurakhiaLab/DP-HLS.git
 cd DP-HLS/baseline/software
-```
-
-#### Running the Baseline
-```
 ./run_baseline
 ```
 
