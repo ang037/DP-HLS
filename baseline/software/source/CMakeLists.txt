@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.5)
-project (seqan3_tutorial CXX)
+project (seqan3_build CXX)
  
 # add seqan3 to search path
 list (APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../seqan3/build_system")
@@ -8,8 +8,6 @@ list (APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../seqan3/build_syst
 find_package (seqan3 3.0 REQUIRED)
  
 # build app with seqan3
-# add_executable (hello_world hello_world.cpp)
-# target_link_libraries (hello_world seqan3::seqan3)
 add_executable (global_affine global_affine.cpp)
 target_link_libraries (global_affine seqan3::seqan3)
 add_executable (global_linear global_linear.cpp)
