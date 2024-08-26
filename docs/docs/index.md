@@ -29,6 +29,24 @@ The initialization step arranges the two sequences being compared on a 2-D grid,
 
 Variations in general paradigm of 2-D Dynamic Programming has led to wide variety of algorithms used by bioinformatics tools in various applications. The table below lists some of the famous algorithms used in bioinformatics which is caused due to some variations in the scoring, initialization and traceback part of the general DP algorithmic template. These variations are described in [Customize new kernels](#customize-new-kernels) section below.
 
+| Sl No. | Input Alphabets | Kernels                                      | State-of-the-art Tools            | Applications                        | Modifications in DP-HLS               |
+|--------|-----------------|----------------------------------------------|-----------------------------------|-------------------------------------|----------------------------------------|
+| 1      | DNA             | Global Linear Alignment (Needleman-Wunsch)   | BLAST, LASTZ                      | Similarity Search                   |                                        |
+| 2      | DNA             | Global Affine Alignment (Gotoh)              | BLAST, LASTZ                      | Similarity Search with gaps         | Scoring                                |
+| 3      | DNA             | Local Linear Alignment (Smith-Waterman)      | BLAST, FASTA, LASTZ               | Gene finding, Motif detection       | Initialization and Traceback           |
+| 4      | DNA             | Local Affine Alignment (Smith-Waterman Gotoh)| BLAST, FASTA, LASTZ               | Gene finding, Motif detection       | Scoring, Initialization and Traceback  |
+| 5      | DNA             | Global Two-piece Affine Alignment            | Minimap2                          | Long Read Alignment                 | Scoring                                |
+| 6      | DNA             | Overlap Alignment                            | WGA Tools (CANU, Flye)            | Whole Genome Assembly               | Initialization and Traceback           |
+| 7      | DNA             | Semi-global Alignment                        | BWA-MEM                           | Whole Genome Assembly               | Initialization and Traceback           |
+| 8      | Seq. Profiles   | Profile Alignment                            | CLUSTALW, MUSCLE                  | Multiple Sequence Alignment         | Sequence Alphabet and Scoring          |
+| 9      | Complex Nos.    | Dynamic Time Wrapping Algorithm (DTW)        | SquiggleKit                       | Basecalling                         | Sequence Alphabet and Scoring          |
+| 10     | DNA             | Viterbi Algorithm (PairHMM)                  | HMMER                             | Remote Homology Search              | Scoring (no Traceback)                 |
+| 11     | DNA             | Banded Local Linear Alignment                | BLAST, Bowtie                     | Fast local alignment                | Scoring and Initialization             |
+| 12     | DNA             | Banded Local Affine Alignment                | Minimap2                          | Long read alignment                 | Initialization, Scoring (no Traceback) |
+| 13     | DNA             | Banded Two-piece Affine Alignment            | Minimap2                          | Long read alignment                 | Scoring, Initialization and Traceback  |
+| 14     | Integers        | Semi-global DTW (sDTW)                       | SquiggleFilter, RawHash           | Basecalling                         | Sequence Alphabet and Scoring          |
+| 15     | Amino acids     | Local Linear Alignment with protein sequences| EMBOSS Water, BLASTp              | Protein Local Alignment             | Sequence Alphabet and Scoring          |
+
 
 ### DP-HLS Framework
 
