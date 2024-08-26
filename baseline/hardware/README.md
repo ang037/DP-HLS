@@ -13,7 +13,7 @@ cd DP-HLS/baseline/hardware
 ```
 
 #### Running the Baseline
-##### GACT
+
 
 #### Baseline Tools
 We have used [GACT](https://github.com/yatisht/darwin/tree/master), [BSW](https://github.com/gsneha26/Darwin-WGA), and [SquiggleFilter](https://github.com/TimD1/SquiggleFilter) as our baselines. Cloning the repository above will clone GACT, BSW, and SquiggleFilter repositories, including their RTL code.
