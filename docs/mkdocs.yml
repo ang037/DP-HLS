@@ -49,7 +49,6 @@ theme:
   favicon: 'images/dp_hls_logo.png'
 
 plugins:
-  - social
   - search
 
 extra_css:
