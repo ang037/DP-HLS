@@ -16,8 +16,11 @@ cd DP-HLS/baseline/hardware
 To get the throughput metric for GACT, run the following:
 ```
 cd darwin/RTL/GACT
+
 iverilog -o tb_GACTTop tb_GACTTop.v GACTTop.v BRAM.v FIFOWithCount.v SmithWatermanArray.v SmithWatermanPE.v Ascii2Nt.v BTLogic.v DP_BRAM.v Nt2Param.v mux_1OfN.v 
+
 vvp tb_GACTTop
+
 gtkwave -f test.10.vcd
 ```
 This should bring up a digital waveform interface similar to this:
@@ -27,8 +30,11 @@ Add all tb_GACTTop associated signals by clicking on the drop down button in the
 To get the throughput metric for BSW, run the following:
 ```
 cd Darwin-WGA/src/hdl/BSW
- iverilog -o tb_BSW_ArrayTop tb_BSW_ArrayTop.v BSW_Array.v BSW_ArrayTop.v BSW_AXISlave.v BSW_PE.v ../common/BRAM.v ../common/Ascii2Nt.v ../common/DP_BRAM.v ../common/FIFO.v ../common/Nt2Param.v
+
+iverilog -o tb_BSW_ArrayTop tb_BSW_ArrayTop.v BSW_Array.v BSW_ArrayTop.v BSW_AXISlave.v BSW_PE.v ../common/BRAM.v ../common/Ascii2Nt.v ../common/DP_BRAM.v ../common/FIFO.v ../common/Nt2Param.v
+
 vvp tb_BSW_ArrayTop
+
 gtkwave -f test.10.vcd
 ```
 This should bring up a waveform similar to the one displayed previously. Following the same steps as above, navigating to where the done signal is high and converting the units to get the throughput value in terms of alignments per second for the PbSim2 data set.
