@@ -1,1 +1,0 @@
-I've decomposed the large `frontend.cpp` file into those different kernels for better management. Also they now can be compiled and develped in parallel. 
