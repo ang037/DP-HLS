@@ -63,12 +63,12 @@ To use our DP-HLS framework quickly to build and run the kernels, it would be pr
 **Step 1: Clone the DP-HLS repository from GitHub.**
 
 The DP-HLS repo can be cloned using the following command:
-```
+```bash
 git clone https://github.com/TurakhiaLab/DP-HLS.git
 ```
 or `ssh` to :
-```
-git@github.com:TurakhiaLab/DP-HLS.git
+```bash
+git clone git@github.com:TurakhiaLab/DP-HLS.git
 ```
 
 **Step 2: Install the required dependencies.**
@@ -79,20 +79,77 @@ Please make sure the following dependencies are installed in your system.
 - Python > 3.6
 
 **Step 3: Build and simulate the kernel.**
-
-TBD
-
 Run the following command to build and simulate the kernel
 
-```
+```bash
 mkdir build && cd build
 cmake ..
-make <target> 
+make global_affine 
 ```
 
-**Step 4: Synthesize and deploy the kernel on FPGA.**
+**Step 4: Synthesize**
+Complete the demo `config.json` under `demo/global_affine` by providing the DP-HLS folder path:
+```json
+{
+    "size": {
+        "max_problem_size": [
+            {"max_query_length": 256, "max_reference_length": 256}
+        ],
+        "pe_num": [32],
+        "blocks": [2],
+        "cu": [1]
+    },
+    "kernel": {
+        "name": "seq_align_multiple_static",
+        "clock_frequency": 250000000
+    },
+    "design": {
+        "path_params": "<dp_hls_root>/DP-HLS/demo/global_affine/design",
+        "path_frontend": "<dp_hls_root>/demo/global_affine/design/kernel_global_affine.cpp",
+        "dp-hls_root": "<dp_hls_root>",
+        "host_program": "<dp_hls_root>/DP-HLS/src/hosts/host_ocl_global.cpp"
+    },
+    "output_path": "<dp_hls_root>/demo/global_affine/output/compile",
+    "output_name": "global_affine",
+    "build": {
+        "build_type": "hw"
+    },
+    "vitis_hls": {
+        "cosim_testbench": "<dp_hls_root>/DP-HLS/testbench/test_csim_global_affine.cpp",
+        "output_path": "<dp_hls_root>/demo/global_affine/output/cosim",
+        "export_design": 0
+    }
+}
+```
+For demonstration purposes, we only compile a kernel with MAX_QUERY_LENGTH and MAX_REFERENCE_LENGTH of 256 with 32 PE, 2 Blocks,  and 1 Compute Unit. Then, compile the kernel with the parallel compile tool `python /home/centos/workspace/DP-HLS/py-hls/parallel_compile.py --config <dp_hls_root>/demo/global_affine/config.json --compile True --num_workers 1 --all True
+`. 
 
-TBD 
+
+!!! Note
+    The `params.h` file used in the Step 3 differs from the `params.h` file used in this step. The difference is that the `params.h` used here have the kerenl size related macro definitions removed to avoide conflict definition when compiling a batch of kernels with the `config.json` file, which defines the kernel size dynamically with the compile flags. 
+
+**Step 5: Deploy the kernel on FPGA.**
+Once the compilation is done and the `.xclbin` bitsteram is generated, you need to create an AFI to deploy the kernel. This can be done on any instance. First you need to create a S3 bucket for the design checkpoint (DCP) and the logs. 
+1. Create AFI
+```bash
+git clone https://github.com/aws/aws-fpga.git  # Clone the AWS FPGA Repo
+source aws-fpga/vitis_setup.sh     # Setup the Vitis HLS
+cd <dp_hls_root>/demo/global_affine/output/compile && <aws_fpga_repo_path>/Vitis/tools/create_vitis_afi.sh -xclbin=./build_dir.hw.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/seq_align_kernel.xclbin -o=./global_affine -s3_bucket=<s3_bucket_name> -s3_dcp_key=<s3_dcp_folder> -s3_logs_key=<s3_logs_folder>
+```
+2. Waiting for the AFI to ready. You can check whether an AFI is ready using `aws ec2 describe-fpga-images --fpga-image-ids <AFI ID>`. Then it is ready to use if the status of the code is available:
+```json
+...
+"State": {
+    "Code": "available"
+},
+...
+```
+
+3. Run the kernel. You can now run the kernel on F1 instance. This can be done with two methods. The first method is that you change the instance type of your development instance to be `f1.2xlarge`. The other is that you can create an EFS that are capable share files across multiple instances; then you create a new F1 instance with AWS-FPGA repo cloned in it and upload the compilation output folder to the EFS for sharing between the Development and Deployment instance. Then, you on the F1 instance, after you can access the compiled bitstream, you can start the kernel by running: 
+```bash
+./dp-hls_host global_affine.awsxclbin
+```
+
 
 ## Customize new kernels
 
@@ -171,13 +228,13 @@ The possible datatype and parameter customization supported by DP-HLS is describ
 
 To modify the sequence alphabets of the inputs of custom kernels, define an arbitrary user-defined datatype `char_t` as follows. The example mentions a 2-bit precision integer used to define char_t. This alphabet represents the four nucleotide bases `A`,`C`,`G`,`T` within the custom kernels requiring DNA sequences as input. 
 
-```
+```cpp
 typedef ap_uint<2> char_t;
 ```
 
 To define input alphabets for Dynamic Time Warping (DTW) kernels, DP-HLS requires user to define a struct (shown below) consisting of two 32-bit fixed-point numbers to represent the real and imaginary parts of the two temporal signals (which take complex values) being compared by the kernel.
 
-```
+```cpp
 struct char_t_st {
     ap_fixed <32,26> real, imag;
     };
@@ -194,7 +251,7 @@ For example, for affine-gap penalty based kernels, which uses 3 recurrence equat
 
 For a custom kernel, specify arbitrary number of scoring parameters used by the kernels, each of arbitrary data types in a C/C++ struct called `ScoringParams`. The following example shows the definition of `ScoringParams` for Global Linear Kernel which uses 3 parameters: match, mismatch and one linear gap penalty. 
 
-```
+```cpp
 struct ScoringParams { 
     type_t mismatch;
     type_t match;
@@ -204,7 +261,7 @@ struct ScoringParams {
 
 Viterbi algorithm for pairHMMs requires three hidden states (M-Match/Mismatch, I-Insertion and D-Deletion) and a total of 27 parameters including two transition probabilities between three hidden states and 5x5 matrix storing the emission probabilities for all pairs of character (`A`,`C`,`G`,`T`) in the M states. The following example illustrates the definition of struct `ScoringParams` used for designing Viterbi Algorithm. 
 
-```
+```cpp
 struct ScoringParams {
     type_t log_mu ;
     type_t log_lambda ;
@@ -224,7 +281,7 @@ The traceback logic in the final step of DP algorithms is equivalent to a finite
 
 The following example enumerates three states — `MM`, `INS`, and `DEL` — in the Global Linear kernel representing the three possible states of traceback pointers based on its recurrence equation.
 
-```
+```cpp
 enum TB_STATE {
     MM , INS , DEL
 } tb_next_state, tb_curr_state ;
@@ -232,7 +289,7 @@ enum TB_STATE {
 
 The following example shows for the Global Affine kernel, where the two additional recurrence equations for long gap scores `LONG_INS` and `LONG_DEL` (long deletion and long insertion respectively) each add a traceback state. 
 
-```
+```cpp
 enum TB_STATE {
     MM , INS , DEL ,
     LONG_INS , LONG_DEL
@@ -252,14 +309,13 @@ To provide the initial row and column scores to the custom kernel for the initia
 
 The following example illustrates the row and column initialization of Global Linear Kernel. It has a single scoring layer at index 0 whose first row and column are initialized to account for gaps at the start of the alignment.
 
-```
-type_t gap = scoring_params . linear_gap ;
+```cpp
+type_t gap = scoring_params.linear_gap ;
 for ( int i = 0; i < MAX_REFERENCE_LENGTH ; i ++) {
     init_row_scr [ i ][0] = i * gap ; }
 for ( int i = 0; i < MAX_QUERY_LENGTH ; i ++) {
     init_col_scr [ i ][0] = i * gap ; }
 ```
-
 
 ### Step 4: Specify Scoring function
 
@@ -271,7 +327,7 @@ i and column j of the DP matrix, in a specific function, `PE_func`.
 
 The following example code shows the scoring equations computed by PEs for the Local Linear kernel. The arrays `dp_mem_up`, `dp_mem_diag`, and `dp_mem_left`, are the inputs to `PE_func` and populated with cell scores automatically by the DP-HLS backend for cells at positions up (i-1, j), diagonal (i-1, j-1) and left (i, j-1) of the current cell (i, j). Likewise, the i𝑡h query character and the j𝑡ℎ reference character are also automatically available to the input of `PE_func` as `lc_qry_val` and `lc_ref_val`, respectively. At the end of the function call, valid scores and traceback pointers for cell (i, j) must be stored to `wt_scr` and `wt_tbp`.
 
-```
+```cpp
 // Inside Local Linear PE_func
 // Compute the upper , left , and diagonal scores
 
@@ -281,7 +337,7 @@ type_t del = dp_mem_up [0] + linear_gap ;
 type_t match = dp_mem_diag [0] + ( lc_qry_val == lc_ref_val ) ? params . match : params . mismatch ;
 ```
 
-```
+```cpp
 // determine the maximum value and traceback
 
 type_t max_value = ins ;
@@ -308,7 +364,7 @@ Each score matrix cell is mapped to a state, and state transitions correspond to
 
 In the Local Linear kernel example with a single state shown below, the outer if-statement checks the current state from the `tb_state` and assigns the new state. The traceback write-out port `wt_tbp` is assigned a direction to move in the score matrix, corresponding to insertion, deletion, match/mismatch, or end of the traceback.
 
-```
+```cpp
 if ( tb_state == TB_STATE :: MM ) {
     if ( tb_ptr == TB_DIAG ) { tb_move = AL_MMI ; 
     }
@@ -349,13 +405,7 @@ To build and simulate the kernel, it is required to have `g++ (GCC) >= 4.8.5` an
 
 ### Step 2: Create a testbench
 
-For the basic C based simulation of the customized kernel, user needs to create a simple testbench to drive the kernel at this step. A testbench should consists of:
-
-TBD
-
-Following shows an example of a testbench for global affine kernel. You can create our own testbench by following this example. 
-
-TBD
+For the basic C based simulation of the customized kernel, user needs to create a simple testbench to drive the kernel at this step. A testbench should consists of the buffer and input initialization, kernel call, and output verification. Please see [this](../../testbench/test_csim_global_affine.cpp) basic implementation of the testbench. Notice that you can write a simple C++ function to verify the correctness of the kernel output. 
 
 !!! Note
     This testbench is for the purpose of C simulation only and is different from the OpenCL Host program mentioned later which is needed for the actual deployment of the kernel on FPGA.
@@ -372,7 +422,7 @@ For each target, you need to add the lines specifying the following:
 
 Then you need to add the folder containing `params.h` as a include path for your kernel. The following example shows how it should be done for global affine kernel. These lines need to be added in the `CMakeLists.txt`. Similarly, you need to do it for your own custom kernel. 
 
-```
+```cmake
 add_executable(test_csim_global_affine
     "testbench/test_csim_global_affine.cpp"
     "kernels/global_affine/kernel_global_affine.cpp"
@@ -383,7 +433,7 @@ target_include_directories(test_csim_global_affine PRIVATE "./kernels/global_aff
 
 Once the `CMakeLists.txt` is configured, follow the below commands to build and run the target (i.e, your own custom kernel).
 
-```
+```bash
 mkdir build && cd build
 cmake ..
 make <target> ## here the target is the kernel found in the CMakeLists.txt
@@ -402,9 +452,8 @@ make <target> ## here the target is the kernel found in the CMakeLists.txt
 ### Step 1: Write host-side program
 In addition to the `params.h` and your kernel function source file, you need to write a OpenCL host program to synthesize and deploy the kernel. A simple example for the host program can be found in the [Vitis Examples](https://github.com/Xilinx/Vitis_Accel_Examples/blob/f61637e9263ecc1be3df34182ea6c53a0ca10447/hello_world/src/host.cpp).
 
-Following example shows a host program for a global affine kernel.
+[This](../../src/hosts/host_ocl_global.cpp) is a sample host program. 
 
-TBD
 
 ### Step 2: Install Dependencies
 
@@ -419,7 +468,7 @@ We provide a set of Python scripts with the DP-HLS repository to streamline the 
 
 Those scripts require JSON configuration file as input. Following example shows how to configure the JSON file with the explanation of all parameters. This JSON file below has prefilled parameters for the global affine kernel. Similarly, you need to do it for your own custom kernel.
 
-```
+```json
 {
     "size": {
         "max_problem_size": [
@@ -474,7 +523,7 @@ Those scripts require JSON configuration file as input. Following example shows 
     - `export_design`: A flag indicating whether the design should be exported after synthesis. A value of `0` means the design will not be exported, while `1` would run the implementation and gives the post-route utilization number.
 
 With the JSON config file above, you can compile a batch of kernels with the full combinations of `max_problem_size` x `pe_num` x `blocks` x `kernels` with the naming convention `<name>_<max_query_length>_<max_reference_length>_<pe_num>_<blocks>_<kernels>` in the output directory. For example, if the `size` is: 
-```
+```json
 "size": {
 	"max_problem_size": [
 		{"max_query_length": 256, "max_reference_length": 256}
@@ -497,7 +546,7 @@ output_dir/
 
 To run the python script which streamline the AMD Xilinx Vitis HLS project creation, synthesis, and implementations, run the following command:
 
-```
+```bash
 python py-hls/auto_cosim.py --config <path_to_the_json_config> --simulate True
 ```
 
@@ -544,7 +593,7 @@ TBD
 ### Step 5: Generate the bitstream
 
 Once the kernel is synthesized and co-simulated, run the following command to generate the bitstream: 
-```
+```bash
 python py-hls/parallel_compile.py --config <path_to_the_json_config> --compile True --num_workers <workers> --all True
 ```
 The flags for this script is explained below: 
