@@ -1,200 +1,78 @@
-# DP-HLS: Dynamic Programming FPGA Acceleration using High-Level Synthesis
-The following information is depracated
+<div align="center">
 
-**HLS Tool**: Vitis HLS<br>
-**Device**: <br>
-**Frequency**: 250MHz <br>
-**Length of the reference sequence**:64 <br> 
-**Length of the query sequence**:64<br>
-**Number of Processing Elements (PE)**:16<br>
+# DP-HLS: A High-Level Synthesis Framework for Accelerating Dynamic Programming Algorithms in Bioinformatics
 
-### Following is the table summarizing the resource usage with various set of sequence alignment algorithms:<br>
+<div align="center">
 
-These resource utilization numbers are only for kernels implementing DP matrix and instantiates PEs. Extra numbers for additional logic (such as traceback, etc.) will be added soon. 
+<img src="docs/docs/images/dp_hls_logo.png" style="height: 350px; width: auto;">
 
-<table>  
-<thead> 
-<tr>
-      <th rowspan="2">Sequence Alignment Algorithms</th>
-      <th rowspan="2">Gap Penalty</th>
-      <th rowspan="2">Banding</th>
-      <th colspan='3'>Resource Utilization </th>
-    </tr>
-    <tr>
-   <th>FF</th>
-   <th>LUT</th> 
-    <th>BRAM</th> 
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td rowspan="4">Smith Waterman</td>
-      <td rowspan="2">Linear</td>
-      <td><input type="text"/>Non Banded</td>
-      <td><input type="text"/>1939</td>
-	 <td><input type="text" />9067</td>
-	  <td><input type="text" />16</td>
-    </tr>
-    <tr>
-      <td><input type="text"/>Banded</td>
-      <td><input type="text" />4678</td>
-      <td><input type="text" />40880</td>
-       <td><input type="text" />32</td>
-    </tr>
-        <tr>
-      <td rowspan="2">Affine</td>
-      <td><input type="text" />Non Banded</td>
-      <td><input type="text" />4301</td>
-	 <td><input type="text" />16581</td>
-	  <td><input type="text" />32</td>
-    </tr>
-    <tr>
-      <td><input type="text" />Banded</td>
-      <td><input type="text" /></td>
-      <td><input type="text" /></td>
-       <td><input type="text" /></td>
-    </tr>
-     <tr>
-      <td rowspan="2">Needleman Wunsch</td>
-      <td>Linear</td>
-      <td><input type="text" /></td>
-      <td><input type="text" />3358</td>
-	 <td><input type="text" />9384</td>
-	  <td><input type="text" />0</td>
-    </tr>
-    <tr>
-      <td>Affine</td>
-      <td><input type="text" /></td>
-      <td><input type="text" /></td>
-      <td><input type="text" /></td>
-       <td><input type="text" /></td>
-    </tr>
-  </tbody>
-</table>
+</div>
 
-
-
-
-
-
-# DP-HLS: Dynamic Programming FPGA Acceleration using High-Level Synthesis
+</div>
 
 ## Table of Contents
 - [Overview](#overview)
-- [Getting Started](#gettingstarted) 
-- [How to use](#usage)
-- [Results](#results)
-- [References](#references)
+- [Getting Started](#start)
+  - [Install dependencies](#install) 
+  - [Customize your kernel](#custom)
+  - [Synthesize your kernels](#synthesize)
+  - [Test the implementation](#impl)
+  - [Deploy the kernel on FPGA](#deploy)
+- [Citing DP-HLS](#citation)
+
+<br>
 
 ## <a name="overview"></a> Overview
 
-We plan to accelerate and implement major important algorithms based on dynamic programming used in Bioinformatics applications. User can configure the parameterizable kernels as per their usecase to be implemented on an FPGA device.
+Welcome to the official repository of DP-HLS, a framework designed to accelerate algorithms based on the 2-D Dynamic Programming paradigm using High-Level Synthesis (HLS). 
 
-## <a name="gettingstarted"></a> Getting Started
+Built with the [AMD Xilinx Vitis HLS tool](https://docs.amd.com/r/en-US/ug1399-vitis-hls/Introduction), DP-HLS offers a user-friendly template with extensive customization options. This allows you to create and implement FPGA-accelerated kernels tailored to your specific needs, without the necessity of deep RTL design expertise.
 
-## <a name="usage"></a> How to use
+With the DP-HLS framework, you can develop efficient DP-based kernels that achieves performance comparable to its hand-coded RTL version, all within a development timeframe of just a few days, and deploy them on [Amazon EC2 F1 FPGA](https://aws.amazon.com/ec2/instance-types/f1/) instances.
+
+**For more detailed information on all the features and settings of DP-HLS, please refer to our [Wiki](https://turakhialab.github.io/DP-HLS/).**
+
+<br>
+
+## <a name="start"></a> Getting Started
+
+To get started with DP-HLS, follow these steps:
+
+
+### <a name="install"></a> Step 1: Install the required dependencies.
+
+```
+git clone --recursive https://github.com/DP-HLS
+cd DP-HLS
+```
+
+For more details on installation, check this - [Installation Guide](https://turakhia.ucsd.edu/DP-HLS/#installation-guide).
+
+### <a name="custom"></a> Step 2: Customize your own kernel.
 
 Modify the parameters in `params.h` file as per your use-case before running our code. Currently our code generates random query and reference sequences as the inputs. You can configure this by reading the sequences from an input file in `seq_align_test.cpp`
 
-Create a project in Xilinx Vitis HLS tool and select our code as source files. Select a device and clock frequency, then synthesize the code. Follow the steps for synthesizing the code from [their documentation](https://docs.xilinx.com/r/en-US/ug1399-vitis-hls/Using-Vitis-HLS).
+Create a project in Xilinx Vitis HLS tool and select our code as source files. Select a device and clock frequency, then synthesize the code.
 
-## <a name="results"></a> Results
+More details on customization of kernels can be found here - [Customize new kernels](https://turakhia.ucsd.edu/DP-HLS/#customize-new-kernels).
 
-Currently our code performs local sequence alignment using Smith Waterman algorithm with affine gap penalty (we do not perform traceback now. Support for traceback will be added soon)
+### <a name="synthesize"></a> Step 3: Synthesize your kernel.
 
-**HLS Tool**: Xilinx Vitis HLS<br>
-**Device**: Zynq UltraScale+ MPSoC (xczu7ev-ffvc1156-2-i) <br>
-**Frequency**: 250 MHz <br>
-**Length of the reference sequence (ref_length)**: 1024 <br> 
-**Length of the query sequence (query_length)**: 1024 <br>
-**Number of Processing Elements (PE)**: 32 <br>
-**Data type**: 16 bit fixed point <br>
-**Number of kernels in parallel (N_BLOCKS)**: 8 <br>
+For more details, check this - [Synthesize new kernels](https://turakhia.ucsd.edu/DP-HLS/#synthesize-new-kernels).
 
-### Following is the table summarizing the resource usage with various set of sequence alignment algorithms:<br>
+### <a name="impl"></a> Step 4: Test and verify your implementation.
+
+For more details on each and every generated output files, check this - [Analyze Output](https://turakhia.ucsd.edu/DP-HLS/#analyze-output).
+
+### <a name="deploy"></a> Step 5: Deploy your FPGA-accelerated kernel.
+
+Check this out for more details - [Deploy new kernels to FPGA](https://turakhia.ucsd.edu/DP-HLS/#deploy-new-kernels-to-fpga).
 
 
-<table>  
-<thead> 
-<tr>
-      <th rowspan="2">Sequence Alignment Algorithms</th>
-      <th rowspan="2">Gap Penalty</th>
-      <th rowspan="2">Banding</th>
-      <th colspan='3'>Resource Utilization </th>
-    </tr>
-    <tr>
-   <th>FF</th>
-   <th>LUT</th> 
-    <th>BRAM</th> 
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td rowspan="4">Smith Waterman</td>
-      <td rowspan="2">Linear</td>
-      <td><input type="text"/>Non Banded</td>
-      <td><input type="text"/></td>
-	 <td><input type="text" /></td>
-	  <td><input type="text" /></td>
-    </tr>
-    <tr>
-      <td><input type="text"/>Banded</td>
-      <td><input type="text" /></td>
-      <td><input type="text" /></td>
-       <td><input type="text" /></td>
-    </tr>
-        <tr>
-      <td rowspan="2">Affine</td>
-      <td><input type="text" />Non Banded</td>
-      <td><input type="text" />16590</td>
-	 <td><input type="text" />47526</td>
-	  <td><input type="text" />144</td>
-    </tr>
-    <tr>
-      <td><input type="text" />Banded</td>
-      <td><input type="text" /></td>
-      <td><input type="text" /></td>
-       <td><input type="text" /></td>
-    </tr>
-     <tr>
-      <td rowspan="2">Needleman Wunsch</td>
-      <td>Linear</td>
-      <td><input type="text" /></td>
-      <td><input type="text" /></td>
-	 <td><input type="text" /></td>
-	  <td><input type="text" />0</td>
-    </tr>
-    <tr>
-      <td>Affine</td>
-      <td><input type="text" /></td>
-      <td><input type="text" /></td>
-      <td><input type="text" /></td>
-       <td><input type="text" /></td>
-    </tr>
-  </tbody>
-</table>
+**Happy coding with DP-HLS!**
 
-## <a name="references"></a> References
+<br>
 
-DP-HLS currently only has support on Unix-based systems. 
+## <a name="citation"></a> Citing DP-HLS
 
-## Building and Simulating DP-HLS
-In the top directory, the file `CMakeLists.txt` contains the build information and files required to run DP-HLS. There are two lines in that file which indicate which platform we are building on: RAPTOR (which is our standard UNIX platform) and F1 (which is the AWS UNIX  platform). If you are on RAPTOR, you should set 
-
-```bash
-set(RAPTOR 1)
-```
-
-If you are on F1, you should set 
-
-```bash
-set(F1 1)
-```
-Then run
-```bash
-make
-```
-This will build all the different types of kernels available, along with their respective testbenches, params, and PE/traceback files. Each testbench performs pairwise alignment on a particular set of sequences and prints the optimal alignment, optionally printing the DP matrix scores if the user wishes. Simply comment out the kernels that you don't wish to build and their dependencies for faster build times.
-
-## Synthesizing DP-HLS
-
+If you use DP-HLS in your research or publications, please cite the following paper:
