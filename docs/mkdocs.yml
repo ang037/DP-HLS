@@ -1,10 +1,4 @@
-site_name: DP-HLS Docs
 
-theme: 
-  name: null
-  custom_dir: 'cinder'
-  logo: 'assets/dp_hls_logo.png'
-  favicon: 'assets/dp_hls_logo.png'
 
 # theme: readthedocs
 
@@ -19,3 +13,69 @@ theme:
 #             FILE_PATTERNS: "align.cpp debug.cpp pe.cpp seq_align_multiple.cpp traceback.cpp utils.cpp align.h debug.h dp_hls_common.h frontend.h host_utils.h PE.h seq_align_multiple.h traceback.h utils.h" # specify file patterns to filter out
 #             RECURSIVE: True # recursive search in source directories
 #             GENERATE_TREEVIEW: True # generate treeview
+
+site_name: DP-HLS
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.path
+    - toc.integrate
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+    - toc.follow
+  language: en
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline 
+        name: Switch to dark mode
+      primary: custom
+      accent: white
+    - scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode    
+      primary: custom
+      accent: white
+    
+  logo: 'images/dp_hls_logo.png'
+  favicon: 'images/dp_hls_logo.png'
+
+plugins:
+  - search
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/TurakhiaLab
+
+nav:
+  - Home: index.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.mark
+  - attr_list
+
+repo_url: https://github.com/TurakhiaLab/DP-HLS
+
+repo_name: TurakhiaLab/DP-HLS
