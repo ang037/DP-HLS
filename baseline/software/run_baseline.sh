@@ -33,6 +33,10 @@ echo
 # Parse command-line options
 while [[ "$#" -gt 0 ]]; do 
 	case $1 in 
+ 		-h|--help)
+   			usage
+      			exit 0
+	 		;;
 		-kernels)
 			shift
 			while [[ "$#" -gt 0 && ! "$1" =~ ^- ]]; do
