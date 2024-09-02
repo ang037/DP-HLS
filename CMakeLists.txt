@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)  # On AWS FPGA AMI, This should be 2.8, but on Raptor we can use 3.8
+cmake_minimum_required (VERSION 3.8)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -15,11 +15,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -fsanitize=address -fno-inline -D
 # "-fsanitize=address" flag was used to check the stack smashing with Google Address Sanitizer. Use this flag with CLang and 
 # run the program to check. 
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 
 set(EXECUTABLE_TARGETS
-    baseline_local_linear
-
-    test_simd
     test_csim_global_linear
     test_csim_banding_global_linear
     test_csim_global_affine
@@ -55,16 +54,6 @@ set(COMMON_SRCS
     "src/utils.cpp"
     "src/debug.cpp"
     "src/host_utils.cpp")
-
-add_executable(test_simd
-        testbench/test_simd.cpp)
-
-# Compile baseline kernel. 
-add_executable(baseline_local_linear "legacy/local_linear.h"
-    "legacy/local_linear.cpp"
-    "legacy/shift_register.h"
-    "legacy/local_linear_testbench.cpp" )
-
 
 add_executable(test_csim_global_linear 
     "testbench/test_csim_global_linear.cpp"
