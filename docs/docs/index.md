@@ -72,15 +72,16 @@ new algorithms. To implement any custom algorithm, only the scoring functions an
 
 To create, customize and deploy your own kernel on FPGA using DP-HLS framwork, it requires a series of steps to be executed. We have already developed pre-built templates of some of the well known algorithms listed in table 1. These pre-built templates are simulated using standard C++, synthesized using AMD Xilinx Vitis HLS 2022.1 toolchain on 8-core Amazon EC2 z1d instance and deployed on Amazon EC2 F1 instance based FPGA.
 
-The following sections mentions the steps to quickly simulate, synthesize and deploy global linear kernel which incorporates Needleman-Wunsch algorithm. Similar steps need to be followed for other pre-built kernel templates as well. To create and execute your own custom kernel, please refer to the sections which describes all possible commands and parameters supported by DP-HLS - [Customize new kernels](#customize-new-kernels), [Build and simulate new kernels](#build-and-simulate-new-kernels) and [Synthesize and deploy new kernels](#synthesize-and-deploy-new-kernels). 
+The following sections mentions the steps to quickly simulate, synthesize and deploy global affine kernel which incorporates Needleman-Wunsch algorithm with affine gap penalty. Similar steps need to be followed for other pre-built kernel templates as well. To create and execute your own custom kernel, please refer to the sections which describes all possible commands and parameters supported by DP-HLS - [Customize new kernels](#customize-new-kernels), [Build and simulate new kernels](#build-and-simulate-new-kernels) and [Synthesize and deploy new kernels](#synthesize-and-deploy-new-kernels). 
 
-**Step 0: Create AWS instances.**
+### Step 0: Create AWS instances
 
 To use our DP-HLS framework quickly to build and run the kernels, it would be preferrable to use AWS instances which comes with the AWS FPGA Developer AMI containing AMD Xilinx Vitis 2021.2. 
 
-**Step 1: Clone the DP-HLS repository from GitHub.**
+### Step 1: Clone the DP-HLS repository from GitHub
 
-The DP-HLS repo can be cloned using the following command:
+The DP-HLS repo can be cloned using the following commands.
+
 ```bash
 git clone https://github.com/TurakhiaLab/DP-HLS.git
 ```
@@ -89,15 +90,16 @@ or `ssh` to :
 git clone git@github.com:TurakhiaLab/DP-HLS.git
 ```
 
-**Step 2: Install the required dependencies.**
+### Step 2: Install the required dependencies
 
 Please make sure the following dependencies are installed in your system.
 
 - g++ >= 4.8.5
 - Python > 3.6
 
-**Step 3: Build and simulate the kernel.**
-Run the following command to build and simulate the kernel
+### Step 3: Build and simulate the kernel
+
+Once the repository is cloned and dependencies are installed, run the following command to build and simulate the kernel.
 
 ```bash
 mkdir build && cd build
@@ -105,8 +107,10 @@ cmake ..
 make global_affine 
 ```
 
-**Step 4: Synthesize**
-Complete the demo `config.json` under `demo/global_affine` by providing the DP-HLS folder path:
+### Step 4: Synthesize the kernel
+
+Once the build is complete, you need to configure the file `config.json` under `demo/global_affine` by providing the DP-HLS folder path. This pre-configured JSON file will compile and synthesize the Global Affine kernel with `MAX_QUERY_LENGTH` and `MAX_REFERENCE_LENGTH` as 256 each along with 32 PEs, 2 Blocks, and 1 Compute Unit. The input clock frequency is set to 250 MHz. 
+
 ```json
 {
     "size": {
@@ -139,22 +143,37 @@ Complete the demo `config.json` under `demo/global_affine` by providing the DP-H
     }
 }
 ```
-For demonstration purposes, we only compile a kernel with MAX_QUERY_LENGTH and MAX_REFERENCE_LENGTH of 256 with 32 PE, 2 Blocks,  and 1 Compute Unit. Then, compile the kernel with the parallel compile tool `python /home/centos/workspace/DP-HLS/py-hls/parallel_compile.py --config <dp_hls_root>/demo/global_affine/config.json --compile True --num_workers 1 --all True
-`. 
+Once the JSON file is configured as mentioned above, run the following command for compiling and synthesizing the Global Affine kernel. 
 
+```python
+python /home/centos/workspace/DP-HLS/py-hls/parallel_compile.py --config <dp_hls_root>/demo/global_affine/config.json --compile True --num_workers 1 --all True
+```
 
-!!! Note
-    The `params.h` file used in the Step 3 differs from the `params.h` file used in this step. The difference is that the `params.h` used here have the kerenl size related macro definitions removed to avoide conflict definition when compiling a batch of kernels with the `config.json` file, which defines the kernel size dynamically with the compile flags. 
+After completion of this step, an `.xclbin` file will be generated which is the bitstream file, used for deploying the kernel on the FPGA device. 
 
-**Step 5: Deploy the kernel on FPGA.**
-Once the compilation is done and the `.xclbin` bitsteram is generated, you need to create an AFI to deploy the kernel. This can be done on any instance. First you need to create a S3 bucket for the design checkpoint (DCP) and the logs. 
-1. Create AFI
+<!-- !!! Note
+    The `params.h` file used in the Step 3 differs from the `params.h` file used in this step. The difference is that the `params.h` used here have the kernel size related macro definitions removed to avoid conflict definition when compiling a batch of kernels with the `config.json` file, which defines the kernel size dynamically with the compile flags.  -->
+
+### Step 5: Deploy the kernel on FPGA
+
+Once the compilation is done and the `.xclbin` bitsteram is generated, you need to create an AFI to deploy the kernel. This can be done on any platform. However, we prefer using AWS instances which has AWS FPGA Developer AMI containing AMD Xilinx Vitis 2021.2.  
+
+First you need to create a S3 bucket for the design checkpoint (DCP) and the logs. 
+
+**1. Create AFI**
+
+Execute the following commands to create an AFI for kernel deployment. 
+
 ```bash
 git clone https://github.com/aws/aws-fpga.git  # Clone the AWS FPGA Repo
 source aws-fpga/vitis_setup.sh     # Setup the Vitis HLS
 cd <dp_hls_root>/demo/global_affine/output/compile && <aws_fpga_repo_path>/Vitis/tools/create_vitis_afi.sh -xclbin=./build_dir.hw.xilinx_aws-vu9p-f1_shell-v04261818_201920_3/seq_align_kernel.xclbin -o=./global_affine -s3_bucket=<s3_bucket_name> -s3_dcp_key=<s3_dcp_folder> -s3_logs_key=<s3_logs_folder>
 ```
-2. Waiting for the AFI to ready. You can check whether an AFI is ready using `aws ec2 describe-fpga-images --fpga-image-ids <AFI ID>`. Then it is ready to use if the status of the code is available:
+
+**2. Waiting for the AFI to ready** 
+
+You can check whether an AFI is ready using `aws ec2 describe-fpga-images --fpga-image-ids <AFI ID>`. The AFI is ready to use if the status of the code is available, as shown below. 
+
 ```json
 ...
 "State": {
@@ -163,11 +182,17 @@ cd <dp_hls_root>/demo/global_affine/output/compile && <aws_fpga_repo_path>/Vitis
 ...
 ```
 
-3. Run the kernel. You can now run the kernel on F1 instance. This can be done with two methods. The first method is that you change the instance type of your development instance to be `f1.2xlarge`. The other is that you can create an EFS that are capable share files across multiple instances; then you create a new F1 instance with AWS-FPGA repo cloned in it and upload the compilation output folder to the EFS for sharing between the Development and Deployment instance. Then, you on the F1 instance, after you can access the compiled bitstream, you can start the kernel by running: 
+**3. Run the kernel** 
+
+You can now run the kernel on AWS F1 FPGA based instances. 
+
+**AWS instance creation**: AWS F1 instance creation can be done with two methods. The first method is to change the instance type of the development instance to be `f1.2xlarge`. The another method is to create an EFS that are capable share files across multiple instances; then you create a new F1 instance with AWS-FPGA repo cloned in it and upload the compilation output folder to the EFS for sharing between the Development and Deployment instance. 
+
+Once you are on the F1 instance, after you can access the compiled bitstream, you can start the kernel by running:
+
 ```bash
 ./dp-hls_host global_affine.awsxclbin
 ```
-
 
 ## Customize new kernels
 
@@ -423,10 +448,219 @@ To build and simulate the kernel, it is required to have `g++ (GCC) >= 4.8.5` an
 
 ### Step 2: Create a testbench
 
-For the basic C based simulation of the customized kernel, user needs to create a simple testbench to drive the kernel at this step. A testbench should consists of the buffer and input initialization, kernel call, and output verification. Please see [this](../../testbench/test_csim_global_affine.cpp) basic implementation of the testbench. Notice that you can write a simple C++ function to verify the correctness of the kernel output. 
+For the basic C based simulation of the customized kernel, user needs to create a simple testbench to drive the kernel at this step. A testbench should consists of the buffer and input initialization, kernel call, and output verification. Please refer to the following code for the testbench example of Global Affine kernel. Notice that you can write a similar C++ function to verify the correctness of the kernel output. 
+
+<style>
+.scrollable-code {
+    max-height: 300px; /* Adjust the height as needed */
+    overflow-y: auto;
+}
+</style>
+
+<div class="scrollable-code">
+
+```cpp
+#include <string>
+#include <vector>
+#include <array>
+#include <map>
+#include <chrono>
+#include "params.h"
+#include "seq_align_multiple.h"
+#include "host_utils.h"
+#include "solutions.h"
+#include "debug.h"
+
+using namespace std;
+
+#define INPUT_QUERY_LENGTH 256
+#define INPUT_REFERENCE_LENGTH 256
+
+char_t base_to_num(char base)
+{
+    switch (base)
+    {
+    case 'A':
+        return 0;
+    case 'C':
+        return 1;
+    case 'G':
+        return 2;
+    case 'T':
+        return 3;
+    default:
+        return 0;
+#ifdef CMAKEDEBUG
+        throw std::runtime_error("Unrecognized Nucleotide " + std::string(1, base) + " from A, C, G, and T.\n"); // or throw an exception
+#endif
+    }
+
+}
+
+struct Penalties_sol
+{
+    float extend;
+    float open;
+    float linear_gap;
+    float match;
+    float mismatch;
+};
+
+int main(){
+    char alphabet[4] = {'A', 'T', 'G', 'C'};
+    std::string query_string = Random::Sequence<4>(alphabet, INPUT_QUERY_LENGTH);
+    std::string reference_string = Random::Sequence<4>(alphabet, INPUT_REFERENCE_LENGTH);
+
+    // Struct for Penalties in kernel
+    Penalties penalties[N_BLOCKS];
+    for (int i = 0; i < N_BLOCKS; i++){
+        penalties[i].extend = -1;
+        penalties[i].open = -1;
+        penalties[i].match = 3;
+        penalties[i].mismatch = -1;
+    }
+
+    // Struct for penalties in solution
+    Penalties_sol penalties_sol[N_BLOCKS];
+    for (Penalties_sol &penalty : penalties_sol) {
+        penalty.extend = -1;
+        penalty.open = -1;
+        penalty.match = 3;
+        penalty.mismatch = -1;
+    }
+
+    // Reference and Query Strings
+    std::vector<char> query(query_string.begin(), query_string.end());
+    std::vector<char> reference(reference_string.begin(), reference_string.end());
+ 
+#ifdef CMAKEDEBUG
+    // Initialize Debugger
+    Container debuggers[N_BLOCKS];
+    for (int i = 0; i < N_BLOCKS; i++){
+        debuggers[i] = Container();
+    }
+#endif
+
+    // Assert actual query length and reference length should be smaller than the maximum length
+    try {
+        if (query.size() > MAX_QUERY_LENGTH) throw std::runtime_error("Query length should less than MAX_QUERY_LENGTH, "
+            "actual query len " + std::to_string(query.size()) + ", Allocated qry len: " + std::to_string(MAX_QUERY_LENGTH));
+        if (reference.size() > MAX_REFERENCE_LENGTH) throw std::runtime_error("Reference length should less than MAX_REFERENCE_LENGTH, "
+            "actual ref len " + std::to_string(reference.size()) + ", Allocated ref len: " + std::to_string(MAX_REFERENCE_LENGTH));
+    } catch (const std::exception &e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        throw;
+    }
+
+    // Allocate query and reference buffer to pass to the kernel
+    char_t reference_buff[MAX_REFERENCE_LENGTH][N_BLOCKS];
+    char_t query_buff[MAX_QUERY_LENGTH][N_BLOCKS];
+
+    // Allocate lengths for query and reference
+    idx_t qry_lengths[N_BLOCKS], ref_lengths[N_BLOCKS];
+
+    // Fill query buffer and references buffer for all blocks.
+    // Each buffer is of MAX size, but only the actual length
+    // elements is filled.
+    for (int b = 0; b < N_BLOCKS; b++)
+    {
+        for (int i = 0; i < query.size(); i++)
+        {
+            query_buff[i][b] = base_to_num(query[i]);
+        }
+        for (int i = 0; i < reference.size(); i++)
+        {
+            reference_buff[i][b] = base_to_num(reference[i]);
+        }
+    }
+
+    // Fill the lengths of the query and reference
+    for (int b = 0; b < N_BLOCKS; b++)
+    {
+        qry_lengths[b] = query.size();
+        ref_lengths[b] = reference.size();
+    }
+
+    // Allocate traceback streams
+    tbr_t tb_streams[MAX_REFERENCE_LENGTH + MAX_QUERY_LENGTH][N_BLOCKS];
+
+    // initialize traceback starting coordinates
+    idx_t tb_is[N_BLOCKS];
+    idx_t tb_js[N_BLOCKS];
+
+    cout << "Kernel Started" << endl;
+    // Actual kernel calling
+    seq_align_multiple_static(
+        query_buff,
+        reference_buff,
+        qry_lengths,
+        ref_lengths,
+        penalties,
+        tb_is, tb_js,
+        tb_streams
+#ifdef CMAKEDEBUG
+        , debuggers
+#endif
+        );
+    
+    // Print the query and reference strings
+    cout << "Query    : " << query_string << endl;
+    cout << "Reference: " << reference_string << endl;
+
+    // Get the solution scores and traceback
+    array<array<array<float, MAX_REFERENCE_LENGTH>, MAX_QUERY_LENGTH>, N_LAYERS> sol_score_mat;
+    array<array<string, MAX_REFERENCE_LENGTH>, MAX_QUERY_LENGTH> sol_tb_mat;
+    map<string, string> alignments;
+    auto sol_start = std::chrono::high_resolution_clock::now();
+    global_affine_solution<Penalties_sol, MAX_QUERY_LENGTH, MAX_REFERENCE_LENGTH, N_LAYERS>(query_string, reference_string, penalties_sol[0], sol_score_mat, sol_tb_mat, alignments);
+    auto sol_end = std::chrono::high_resolution_clock::now();
+    // print_matrix<float, MAX_QUERY_LENGTH, MAX_REFERENCE_LENGTH>(sol_score_mat[0], "Solution Score Matrix Layer 0");
+    // print_matrix<char, MAX_QUERY_LENGTH, MAX_REFERENCE_LENGTH>(sol_tb_mat, "Solution Traceback Matrix");
+    cout << "Solution Aligned Query    : " << alignments["query"] << endl;
+    cout << "Solution Aligned Reference: " << alignments["reference"] << endl;
+    // Display solution runtime
+    std::cout << "Solution Runtime: " << std::chrono::duration_cast<std::chrono::milliseconds>(sol_end - sol_start).count() << "ms" << std::endl;
+
+#ifdef CMAKEDEBUG
+    // Cast kernel scores to matrix scores
+    debuggers[0].cast_scores();
+    // print_matrix<float, MAX_QUERY_LENGTH, MAX_REFERENCE_LENGTH>(debuggers[0].scores_cpp[0], "Kernel 0 Scores Layer 0");
+    debuggers[0].compare_scores(sol_score_mat, query.size(), reference.size());  // check if the scores from the kernel matches scores from the solution
+#endif
+
+    // reconstruct kernel alignments
+    array<map<string, string>, N_BLOCKS> kernel_alignments;
+    int tb_query_lengths[N_BLOCKS];
+    int tb_reference_lengths[N_BLOCKS];
+    string query_string_blocks[N_BLOCKS];
+    string reference_string_blocks[N_BLOCKS];
+    // for global alignments, adjust the lengths to be the lengths - 1
+    for (int i = 0; i < N_BLOCKS; i++) {
+        tb_query_lengths[i] = (int) tb_is[i];
+        tb_reference_lengths[i] = (int) tb_js[i];
+        query_string_blocks[i] = query_string;
+        reference_string_blocks[i] = reference_string;
+    }
+    tbr_t tb_streams_host[N_BLOCKS][MAX_REFERENCE_LENGTH + MAX_QUERY_LENGTH];
+    HostUtils::IO::SwitchDimension(tb_streams, tb_streams_host);
+    kernel_alignments = HostUtils::Sequence::ReconstructTracebackBlocks<tbr_t, N_BLOCKS, MAX_QUERY_LENGTH, MAX_REFERENCE_LENGTH>(
+        query_string_blocks, reference_string_blocks,
+        tb_query_lengths, tb_reference_lengths, 
+        tb_streams_host);
+
+    // Print kernel 0 traceback
+    for (int i = 0; i < N_BLOCKS; i++) {
+        cout << "Kernel " << i << " Traceback" << endl;
+        cout << "Kernel   Aligned Query    : " << kernel_alignments[0]["query"] << endl;
+        cout << "Kernel   Aligned Reference: " << kernel_alignments[0]["reference"] << endl;
+    }
+}
+```
+
+</div>
 
 !!! Note
-    This testbench is for the purpose of C simulation only and is different from the OpenCL Host program mentioned later which is needed for the actual deployment of the kernel on FPGA.
+    This testbench is for the purpose of C simulation only and is different from the OpenCL based Host program mentioned later which is needed for the actual deployment of the kernel on FPGA.
  
 ### Step 3: Build and Run
 
@@ -470,8 +704,184 @@ make <target> ## here the target is the kernel found in the CMakeLists.txt
 ### Step 1: Write host-side program
 In addition to the `params.h` and your kernel function source file, you need to write a OpenCL host program to synthesize and deploy the kernel. A simple example for the host program can be found in the [Vitis Examples](https://github.com/Xilinx/Vitis_Accel_Examples/blob/f61637e9263ecc1be3df34182ea6c53a0ca10447/hello_world/src/host.cpp).
 
-[This](../../src/hosts/host_ocl_global.cpp) is a sample host program. 
+The following code shows a sample host program for your reference.
 
+<style>
+.scrollable-code {
+    max-height: 300px; /* Adjust the height as needed */
+    overflow-y: auto;
+}
+</style>
+
+<div class="scrollable-code">
+
+```cpp
+
+#include "xcl2.hpp"
+#include <vector>
+#include <algorithm>
+#include <ap_int.h>
+#include <ap_fixed.h>
+#include "../../include/host_utils.h"
+#include "dp_hls_common.h"
+#include <map>
+#include <chrono>
+
+int base_to_num(char base){
+    switch (base)
+    {
+    case 'A':
+        return 0;
+    case 'C':
+        return 1;
+    case 'G':
+        return 2;
+    case 'T':
+        return 3;
+    default:
+        return 0;
+#ifdef CMAKEDEBUG
+        throw std::runtime_error("Unrecognized Nucleotide " + std::string(1, base) + " from A, C, G, and T.\n"); // or throw an exception
+#endif
+    }
+}
+
+
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        std::cout << "Usage: " << argv[0] << " <XCLBIN File>" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    std::string binaryFile = argv[1];
+    cl_int err;
+    cl::Context context;
+    cl::Kernel krnl_seq_align;
+    cl::CommandQueue q;
+
+    // Allocate memory for each array
+    std::vector<char_t, aligned_allocator<char_t>> querys(N_BLOCKS * MAX_QUERY_LENGTH);
+    std::vector<char_t, aligned_allocator<char_t>> references(N_BLOCKS * MAX_REFERENCE_LENGTH);
+    std::vector<idx_t, aligned_allocator<idx_t>> query_lengths(N_BLOCKS);
+    std::vector<idx_t, aligned_allocator<idx_t>> reference_lengths(N_BLOCKS);
+    std::vector<Penalties, aligned_allocator<Penalties>> penalties(N_BLOCKS); // Assuming a single penalties struct
+    std::vector<idx_t, aligned_allocator<idx_t>> traceback_start_is(N_BLOCKS);  // Allocate buffer for the starting row and column of the buffer
+    std::vector<idx_t, aligned_allocator<idx_t>> traceback_start_js(N_BLOCKS);
+    std::vector<tbr_t, aligned_allocator<tbr_t>> tb_streams(N_BLOCKS * (MAX_REFERENCE_LENGTH + MAX_QUERY_LENGTH));
+
+    // Initialize data
+    char alphabet[] = {'A', 'T', 'C', 'G'};  // currently putting just random sequence here
+    string querys_strings = Random::Sequence<4>(alphabet, N_BLOCKS * MAX_QUERY_LENGTH);
+    string references_strings = Random::Sequence<4>(alphabet, N_BLOCKS * MAX_REFERENCE_LENGTH);
+    const char *query_ptr = querys_strings.c_str();
+    const char *reference_ptr = references_strings.c_str();
+    for (int i = 0; i < N_BLOCKS; i++) {
+        query_lengths[i] = MAX_QUERY_LENGTH;
+        reference_lengths[i] = MAX_REFERENCE_LENGTH;
+        for (int j = 0; j < MAX_QUERY_LENGTH; j++) {
+            querys[i * MAX_QUERY_LENGTH + j] = (type_t) base_to_num(*query_ptr++);
+        }
+        for (int j = 0; j < MAX_REFERENCE_LENGTH; j++) {
+            references[i * MAX_REFERENCE_LENGTH + j] = (type_t) base_to_num(*reference_ptr++);
+        }
+        // Initialize Penalties
+        penalties[i].open = type_t(-2);
+        penalties[i].extend = type_t(-1);
+        penalties[i].mismatch = type_t(-3);
+        penalties[i].match = type_t(2);
+        penalties[i].linear_gap = type_t(-1);
+    }
+
+    // OPENCL HOST CODE AREA START
+    auto devices = xcl::get_xil_devices();
+    auto fileBuf = xcl::read_binary_file(binaryFile);
+    cl::Program::Binaries bins{{fileBuf.data(), fileBuf.size()}};
+    bool valid_device = false;
+    for (unsigned int i = 0; i < devices.size(); i++) {
+        auto device = devices[i];
+        OCL_CHECK(err, context = cl::Context(device, nullptr, nullptr, nullptr, &err));
+        OCL_CHECK(err, q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err));
+        std::cout << "Trying to program device[" << i << "]: " << device.getInfo<CL_DEVICE_NAME>() << std::endl;
+        cl::Program program(context, {device}, bins, nullptr, &err);
+        if (err != CL_SUCCESS) {
+            std::cout << "Failed to program device[" << i << "] with xclbin file!\n";
+        } else {
+            std::cout << "Device[" << i << "]: program successful!\n";
+            OCL_CHECK(err, krnl_seq_align = cl::Kernel(program, "seq_align_multiple_static", &err));
+            valid_device = true;
+            break;
+        }
+    }
+    if (!valid_device) {
+        std::cout << "Failed to program any device found, exit!\n";
+        exit(EXIT_FAILURE);
+    }
+
+    // Allocate Buffers in Global Memory and set kernel arguments
+    OCL_CHECK(err, cl::Buffer buffer_querys(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, 
+                                            sizeof(char_t) * querys.size(), querys.data(), &err));
+    OCL_CHECK(err, cl::Buffer buffer_references(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, 
+                                                sizeof(char_t) * references.size(), references.data(), &err));
+    OCL_CHECK(err, cl::Buffer buffer_query_lengths(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, 
+                                                   sizeof(idx_t) * query_lengths.size(), query_lengths.data(), &err));
+    OCL_CHECK(err, cl::Buffer buffer_reference_lengths(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, 
+                                                       sizeof(idx_t) * reference_lengths.size(), reference_lengths.data(), &err));
+    OCL_CHECK(err, cl::Buffer buffer_penalties(context, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, 
+                                               sizeof(Penalties) * penalties.size(), penalties.data(), &err));
+    OCL_CHECK(err, cl::Buffer buffer_traceback_start_is(context, CL_MEM_USE_HOST_PTR | CL_MEM_WRITE_ONLY,  
+                                                   sizeof(idx_t) * traceback_start_is.size(), traceback_start_is.data(), &err));
+    OCL_CHECK(err, cl::Buffer buffer_traceback_start_js(context, CL_MEM_USE_HOST_PTR | CL_MEM_WRITE_ONLY, 
+                                                       sizeof(idx_t) * traceback_start_js.size(), traceback_start_js.data(), &err));
+    OCL_CHECK(err, cl::Buffer buffer_tb_streams(context, CL_MEM_USE_HOST_PTR | CL_MEM_WRITE_ONLY, 
+                                                sizeof(tbr_t) * tb_streams.size(), tb_streams.data(), &err));
+                                                
+
+    // Set Kernel Arguments
+    OCL_CHECK(err, err = krnl_seq_align.setArg(0, buffer_querys));
+    OCL_CHECK(err, err = krnl_seq_align.setArg(1, buffer_references));
+    OCL_CHECK(err, err = krnl_seq_align.setArg(2, buffer_query_lengths));
+    OCL_CHECK(err, err = krnl_seq_align.setArg(3, buffer_reference_lengths));
+    OCL_CHECK(err, err = krnl_seq_align.setArg(4, buffer_penalties));
+    OCL_CHECK(err, err = krnl_seq_align.setArg(5, buffer_traceback_start_is));
+    OCL_CHECK(err, err = krnl_seq_align.setArg(6, buffer_traceback_start_js));
+    OCL_CHECK(err, err = krnl_seq_align.setArg(7, buffer_tb_streams));
+
+    // Copy input data to device global memory
+    auto start = std::chrono::high_resolution_clock::now();
+    OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_querys, buffer_references, buffer_query_lengths, 
+                                                     buffer_reference_lengths, buffer_penalties}, 0 /* 0 means from host*/));
+
+    // Launch the Kernel
+    OCL_CHECK(err, err = q.enqueueTask(krnl_seq_align));
+    
+
+    // Copy Result from Device Global Memory to Host Local Memory
+    OCL_CHECK(err, err = q.enqueueMigrateMemObjects({buffer_traceback_start_is, buffer_traceback_start_js, buffer_tb_streams}, CL_MIGRATE_MEM_OBJECT_HOST));
+    q.finish();
+    auto end = std::chrono::high_resolution_clock::now();
+    
+    // OPENCL HOST CODE AREA END
+
+    // Print raw traceback pointer streams
+    for (int i = 0; i < N_BLOCKS; i++) {
+        std::cout << "Query: " << querys_strings.substr(i * MAX_QUERY_LENGTH, MAX_QUERY_LENGTH) << std::endl;
+        std::cout << "Reference: " << references_strings.substr(i * MAX_REFERENCE_LENGTH, MAX_REFERENCE_LENGTH) << std::endl;
+        std::cout << "Traceback: " << std::endl;
+        for (int j = 0; j < MAX_QUERY_LENGTH + MAX_REFERENCE_LENGTH; j++) {
+            std::cout << tb_streams[i * (MAX_QUERY_LENGTH + MAX_REFERENCE_LENGTH) + j];
+        }
+        std::cout << std::endl;
+    }
+
+    // Print time
+    std::cout << "Kernel execution time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+
+    std::cout << "Kernel execution complete." << std::endl;
+    return EXIT_SUCCESS;
+}
+```
+
+</div> 
 
 ### Step 2: Install Dependencies
 
