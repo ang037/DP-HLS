@@ -4,7 +4,7 @@
 
 <div align="center">
 
-<img src="docs/docs/images/dp_hls_logo.png" style="height: 350px; width: auto;">
+<img src="docs/docs/images/dp_hls_logo.png" style="height: 300px; width: auto;">
 
 </div>
 
@@ -35,7 +35,7 @@ With the DP-HLS framework, you can develop efficient DP-based kernels that achie
 
 <div align="center">
 
-<img src="images/hls_frontend.png"width="600" height="350" />
+<img src="docs/docs/images/hls_frontend.png"width="600" height="350" />
 
 </div>
 
