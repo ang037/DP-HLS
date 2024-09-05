@@ -35,9 +35,11 @@ With the DP-HLS framework, you can develop efficient DP-based kernels that achie
 
 <div align="center">
 
-<img src="docs/docs/images/hls_frontend.png"width="600" height="350" />
+<img src="docs/docs/images/hls_frontend.png" style="height: 350px; width: 600px;">
 
 </div>
+
+Figure above shows front-end design of DP-HLS with features and steps to customize kernels. 
 
 <br>
 
