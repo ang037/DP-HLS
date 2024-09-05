@@ -33,6 +33,12 @@ With the DP-HLS framework, you can develop efficient DP-based kernels that achie
 
 **For more detailed information on all the features and settings of DP-HLS, please refer to our [Wiki](https://turakhialab.github.io/DP-HLS/).**
 
+<div align="center">
+
+<img src="images/hls_frontend.png"width="600" height="350" />
+
+</div>
+
 <br>
 
 ## <a name="start"></a>Getting Started

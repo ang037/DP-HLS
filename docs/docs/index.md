@@ -52,7 +52,15 @@ Variations in general paradigm of 2-D Dynamic Programming has led to wide variet
 
 <div align="center">
 
-<img src="images/implementation_image-1.png"width="1000" height="250" />
+<img src="images/dp-hls_poster.png"width="200" height="350" />
+
+</div>
+
+</br>
+
+<div align="center">
+
+<img src="images/hls_frontend.png"width="600" height="350" />
 
 </div>
 
