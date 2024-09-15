@@ -10,8 +10,19 @@
 #include <numeric>
 #include <iostream>
 
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " num_threads" << std::endl;
+        return 1;
+    }
+
+    int num_threads = std::atoi(argv[1]); 
+    if (num_threads <= 0) {
+        std::cerr << "Invalid number of threads: " << argv[1] << std::endl;
+        return 1;
+    }
+
     using seqan3::operator""_dna4;
     std::vector<int64_t> times;
     
@@ -2030,7 +2041,7 @@ int main()
                                 | seqan3::align_cfg::gap_cost_affine{} 
                                 | seqan3::align_cfg::output_score{} 
                                 | seqan3::align_cfg::output_alignment{}
-                                | seqan3::align_cfg::parallel{8};
+                                | seqan3::align_cfg::parallel{num_threads};
 
     // Align each query against each reference
     for (int i = 0; i < 10; i++) {
