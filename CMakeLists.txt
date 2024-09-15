@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)  # On AWS FPGA AMI, This should be 2.8, but on Raptor we can use 3.8
+cmake_minimum_required (VERSION 3.8)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -8,18 +8,14 @@ endif()
 
 project ("DP-HLS")
 
-# set(RAPTOR 1)
-set(F1 1)
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -fsanitize=address -fno-inline -DCMAKE_BUILD_TYPE=Debug")
 # "-fsanitize=address" flag was used to check the stack smashing with Google Address Sanitizer. Use this flag with CLang and 
 # run the program to check. 
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 
 set(EXECUTABLE_TARGETS
-    baseline_local_linear
-
-    test_simd
     test_csim_global_linear
     test_csim_banding_global_linear
     test_csim_global_affine
@@ -55,16 +51,6 @@ set(COMMON_SRCS
     "src/utils.cpp"
     "src/debug.cpp"
     "src/host_utils.cpp")
-
-add_executable(test_simd
-        testbench/test_simd.cpp)
-
-# Compile baseline kernel. 
-add_executable(baseline_local_linear "legacy/local_linear.h"
-    "legacy/local_linear.cpp"
-    "legacy/shift_register.h"
-    "legacy/local_linear_testbench.cpp" )
-
 
 add_executable(test_csim_global_linear 
     "testbench/test_csim_global_linear.cpp"
@@ -183,21 +169,6 @@ add_executable(test_csim_protein_local_affine
 )
 
 
-# Test Python APIs
-#add_executable(test_pyapi "testbench/test_align.cpp"
-#    "include/seq_align_multiple.h"
-#    "include/align.h"
-#    "include/PE.h"
-#    "include/utils.h"
-#    "include/pyapi.h"
-#    "src/seq_align_multiple.cpp"
-#    "src/align/align.cpp"
-#    "src/pe.cpp"
-#    "src/traceback.cpp"
-#    "src/pyapi.cpp"
-#    "include/debug.h")
-
-
 target_include_directories(test_csim_global_affine PRIVATE "./kernels/global_affine")
 target_include_directories(test_csim_global_linear PRIVATE "./kernels/global_linear")
 target_include_directories(test_csim_banding_global_linear PRIVATE "./kernels/banding_global_linear")
@@ -223,47 +194,26 @@ target_include_directories(test_csim_sdtw PRIVATE "./kernels/sdtw")
 target_include_directories(test_csim_protein_local_affine PRIVATE "./kernels/protein_local_affine")
 
 
-# Add include to Xilinx Library Files
-if (RAPTOR)
-    set(HLS_HOME "/home/AD.UCSD.EDU/swalia/Xilinx/Vitis_HLS/2023.1")
+# >>> Add CMake Compile Vitis header and library path >>>
+set(HLS_HOME "/opt/Xilinx/Vitis_HLS/2021.2/")  # Default HLS_HOME if using FPGA Developer AMI
 
-    include_directories(${EXECUTABLE_TARGETS} PUBLIC "${HLS_HOME}/include")
-    include_directories(${EXECUTABLE_TARGETS} PUBLIC "./include")
-
-    link_directories(${EXECUTABLE_TARGETS} PUBLIC "${HLS_HOME}/lib")
-    link_directories(${EXECUTABLE_TARGETS} PUBLIC "/usr/lib/x86_64-linux-gnu" "/usr/lib32" "/usr/libx32")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-
-elseif(F1)
-    set(HLS_HOME "/opt/Xilinx/Vitis_HLS/2021.2/")    
-
-    include_directories(${EXECUTABLE_TARGETS} PUBLIC "${HLS_HOME}/include")
-    include_directories(${EXECUTABLE_TARGETS} PUBLIC "./include")
-    include_directories(${EXECUTABLE_TARGETS} PUBLIC "./common/includes")
+include_directories(${EXECUTABLE_TARGETS} PUBLIC "${HLS_HOME}/include")
+include_directories(${EXECUTABLE_TARGETS} PUBLIC "./include")
+include_directories(${EXECUTABLE_TARGETS} PUBLIC "./common/includes")
 
 
-    link_directories(${EXECUTABLE_TARGETS} PUBLIC "${HLS_HOME}/lib")
-    link_directories(${EXECUTABLE_TARGETS} PUBLIC "/usr/lib64")
-    link_directories(${EXECUTABLE_TARGETS} PUBLIC "/usr/lib/x86_64-linux-gnu" "/usr/lib32" "/usr/libx32")
+link_directories(${EXECUTABLE_TARGETS} PUBLIC "${HLS_HOME}/lib")
+link_directories(${EXECUTABLE_TARGETS} PUBLIC "/usr/lib64")
+link_directories(${EXECUTABLE_TARGETS} PUBLIC "/usr/lib/x86_64-linux-gnu" "/usr/lib32" "/usr/libx32")
 
-    link_libraries(${EXECUTABLE_TARGETS} PUBLIC xrt_coreutil)
-    
-    target_link_libraries(test_csim_dtw PUBLIC OpenCL)
-    target_link_libraries(test_csim_profile_alignment_real_data PUBLIC OpenCL)
-    target_link_libraries(test_csim_global_linear PUBLIC OpenCL)
+link_libraries(${EXECUTABLE_TARGETS} PUBLIC xrt_coreutil)
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-else()
-    set(HLS_HOME "/tools/Xilinx/Vitis_HLS/2022.2")
-    set(XRT_HOME "/opt/xilinx/xrt")
+target_link_libraries(test_csim_dtw PUBLIC OpenCL)
+target_link_libraries(test_csim_profile_alignment_real_data PUBLIC OpenCL)
+target_link_libraries(test_csim_global_linear PUBLIC OpenCL)
 
-    include_directories(${EXECUTABLE_TARGETS} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-    include_directories(${EXECUTABLE_TARGETS} PUBLIC "${XRT_HOME}/include" "${HLS_HOME}/include")
-    link_directories(${EXECUTABLE_TARGETS} PUBLIC "${HLS_HOME}/lib" "${XRT_HOME}/lib")
-    link_libraries(${EXECUTABLE_TARGETS} PUBLIC xrt_coreutil)
-    add_compile_options(${EXECUTABLE_TARGETS} PUBLIC -pthread)
-endif()
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+# <<< Add CMake Compile Vitis header and library path <<<
 
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
