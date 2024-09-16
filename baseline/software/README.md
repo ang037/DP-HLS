@@ -7,10 +7,11 @@
 
 #### Baseline Quick Start
 ```
-git clone --recursive https://github.com/TurakhiaLab/DP-HLS
+git clone https://github.com/TurakhiaLab/DP-HLS
 cd DP-HLS/baseline/software
+git clone --recurse-submodules https://github.com/seqan/seqan3.git
+git clone https://github.com/lh3/minimap2
 ```
-Note that the `--recursive` option is needed to clone all the Seqan3 and minimap2 submodules.  
 
 #### Build Instructions
 SeqAn3 is compiled internally by the `run_baseline.sh` script. To build Minimap2, run 
