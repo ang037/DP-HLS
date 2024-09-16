@@ -147,7 +147,7 @@ if [[ ${#kernels[@]} == 0 ]]; then
 	echo
 else 
 	echo "Kernels specified: ${kernels[@]}"
-	compile_kernels "$kernels"
+	compile_kernels "${kernels[@]}"
 	for kernel in "${kernels[@]}"; do
 		if [[ "$kernel" == "global_affine" ]]; then
 			echo "Running baseline for global affine with ${num_threads} threads"
