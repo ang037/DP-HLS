@@ -1,6 +1,6 @@
 [submodule "docs/doxygen-awesome-css"]
 	path = docs/doxygen-awesome-css
 	url = https://github.com/jothepro/doxygen-awesome-css.git
-[submodule "darwin"]
-	path = darwin
-	url = https://github.com/yatisht/darwin
+[submodule "baseline/hardware/Darwin-WGA"]
+	path = baseline/hardware/Darwin-WGA
+	url = https://github.com/gsneha26/Darwin-WGA
