@@ -4,3 +4,6 @@
 [submodule "baseline/hardware/Darwin-WGA"]
 	path = baseline/hardware/Darwin-WGA
 	url = https://github.com/gsneha26/Darwin-WGA
+[submodule "baseline/hardware/darwin"]
+	path = baseline/hardware/darwin
+	url = https://github.com/yatisht/darwin
