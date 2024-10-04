@@ -7,3 +7,6 @@
 [submodule "baseline/hardware/darwin"]
 	path = baseline/hardware/darwin
 	url = https://github.com/yatisht/darwin
+[submodule "baseline/software/baseline/software/GASAL2"]
+	path = baseline/software/baseline/software/GASAL2
+	url = https://github.com/nahmedraja/GASAL2.git
