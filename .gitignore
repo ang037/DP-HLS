@@ -106,3 +106,6 @@ baseline/software/source/references.fasta
 baseline/software/source/queries.fasta
 baseline/software/source/processed_references.fasta
 baseline/software/source/processed_queries.fasta
+/data/
+compile_results
+vitis_projects

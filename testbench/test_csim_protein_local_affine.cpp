@@ -151,7 +151,7 @@ int main(){
 
     // Allocate traceback streams
     idx_t tb_is_d[N_BLOCKS], tb_js_d[N_BLOCKS];
-    tbr_t tb_streams[MAX_REFERENCE_LENGTH + MAX_QUERY_LENGTH][N_BLOCKS];
+    // tbr_t tb_streams[MAX_REFERENCE_LENGTH + MAX_QUERY_LENGTH][N_BLOCKS];
 
     cout << "Kernel Started" << endl;
 
@@ -163,8 +163,8 @@ int main(){
         ref_lengths,
         penalties,
         transitions, 
-        tb_is_d, tb_js_d,
-        tb_streams
+        tb_is_d, tb_js_d
+        // tb_streams
 #ifdef SCORED
         , scores
 #endif
@@ -208,19 +208,19 @@ int main(){
         reference_string_blocks[i] = reference_string;
     }
     tbr_t tb_streams_host[N_BLOCKS][MAX_REFERENCE_LENGTH + MAX_QUERY_LENGTH];
-    HostUtils::IO::SwitchDimension(tb_streams, tb_streams_host);
+    // HostUtils::IO::SwitchDimension(tb_streams, tb_streams_host);
     
-    cout << "Start Reconstructing Traceback Blocks" << endl;
-    kernel_alignments = HostUtils::Sequence::ReconstructTracebackBlocks<tbr_t, N_BLOCKS, MAX_QUERY_LENGTH, MAX_REFERENCE_LENGTH>(
-        query_string_blocks, reference_string_blocks,
-        tb_is_h, tb_js_h, 
-        tb_streams_host);
+    // cout << "Start Reconstructing Traceback Blocks" << endl;
+    // kernel_alignments = HostUtils::Sequence::ReconstructTracebackBlocks<tbr_t, N_BLOCKS, MAX_QUERY_LENGTH, MAX_REFERENCE_LENGTH>(
+    //     query_string_blocks, reference_string_blocks,
+    //     tb_is_h, tb_js_h, 
+    //     tb_streams_host);
 
     // Print kernel 0 traceback
     for (int i = 0; i < N_BLOCKS; i++) {
-        cout << "Kernel " << i << " Traceback, Start Row: " << tb_is_h[i] << ", Start Column: " << tb_js_h[i] << endl;
-        cout << "Kernel   Aligned Query    : " << kernel_alignments[0]["query"] << endl;
-        cout << "Kernel   Aligned Reference: " << kernel_alignments[0]["reference"] << endl;
+        // cout << "Kernel " << i << " Traceback, Start Row: " << tb_is_h[i] << ", Start Column: " << tb_js_h[i] << endl;
+        // cout << "Kernel   Aligned Query    : " << kernel_alignments[0]["query"] << endl;
+        // cout << "Kernel   Aligned Reference: " << kernel_alignments[0]["reference"] << endl;
 #ifdef SCORED
         cout << "Kernel " << i << " Score: " << scores[i] << endl;
 #endif
