@@ -29,9 +29,3 @@ Specifying `-kernels` is optional and doing so will run baselines only for the s
 
 #### Baseline Tools
 We have used [SeqAn3](https://github.com/seqan/seqan3) and [Minimap2](https://github.com/lh3/minimap2) as our baselines. Cloning the repository above will clone SeqAn3 and Minimap2 repositories.
-
-#### GPU Baseline Quickstart
-```
-git clone https://github.com/nahmedraja/GASAL2.git
-./run_gpu_baseline.sh
-```
