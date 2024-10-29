@@ -9,7 +9,7 @@
 ## Introduction
 
 Welcome to the official wiki of DP-HLS. DP-HLS is a framework designed to simplify and accelerate the development of a
-broad set of bioinformatically relevant DP algorithms based on the 2-D DP paradigm using High-Level Synthesis (HLS). Built with the AMD Xilinx Vitis HLS tool, DP-HLS offers extensive customizability, enabling users to create and implement FPGA-accelerated kernels tailored to their specific applications.
+broad set of bioinformatically relevant DP algorithms based on the 2-D DP paradigm using High-Level Synthesis (HLS). Built with the AMD Vitis HLS tool, DP-HLS offers extensive customizability, enabling users to create and implement FPGA-accelerated kernels tailored to their specific applications.
 
 ### 2-D Dynamic Programming Paradigm
 
@@ -82,13 +82,13 @@ new algorithms. To implement any custom algorithm, only the scoring functions an
 
 ## Quick Start
 
-To create, customize and deploy your own kernel on FPGA using DP-HLS framwork, it requires a series of steps to be executed. We have already developed pre-built templates of some of the well known algorithms listed in table 1. These pre-built templates are simulated using standard C++, synthesized using AMD Xilinx Vitis HLS 2021.2 toolchain on 8-core Amazon EC2 z1d instance and deployed on Amazon EC2 F1 instance based FPGA.
+To create, customize and deploy your own kernel on FPGA using DP-HLS framwork, it requires a series of steps to be executed. We have already developed pre-built templates of some of the well known algorithms listed in table 1. These pre-built templates are simulated using standard C++, synthesized using AMD Vitis HLS 2021.2 toolchain on 8-core Amazon EC2 z1d instance and deployed on Amazon EC2 F1 instance based FPGA.
 
 The following sections mentions the steps to quickly simulate, synthesize and deploy global affine kernel which incorporates Needleman-Wunsch algorithm with affine gap penalty. Similar steps need to be followed for other pre-built kernel templates as well. To create and execute your own custom kernel, please refer to the sections which describes all possible commands and parameters supported by DP-HLS - [Customize new kernels](#customize-new-kernels), [Build and simulate new kernels](#build-and-simulate-new-kernels) and [Synthesize and deploy new kernels](#synthesize-and-deploy-new-kernels). 
 
 ### Step 0: Create AWS instances
 
-To use our DP-HLS framework quickly to build and run the kernels, it would be preferrable to use AWS instances which comes with the AWS FPGA Developer AMI containing AMD Xilinx Vitis 2021.2. 
+To use our DP-HLS framework quickly to build and run the kernels, it would be preferrable to use AWS instances which comes with the AWS FPGA Developer AMI containing AMD Vitis 2021.2. 
 
 ### Step 1: Clone the DP-HLS repository from GitHub
 
@@ -168,7 +168,7 @@ After completion of this step, an `.xclbin` file will be generated which is the 
 
 ### Step 5: Deploy the kernel on FPGA
 
-Once the compilation is done and the `.xclbin` bitsteram is generated, you need to create an AFI to deploy the kernel. This can be done on any platform. However, we prefer using AWS instances which has AWS FPGA Developer AMI containing AMD Xilinx Vitis 2021.2.  
+Once the compilation is done and the `.xclbin` bitsteram is generated, you need to create an AFI to deploy the kernel. This can be done on any platform. However, we prefer using AWS instances which has AWS FPGA Developer AMI containing AMD Vitis 2021.2.  
 
 First you need to create a S3 bucket for the design checkpoint (DCP) and the logs. 
 
@@ -707,7 +707,7 @@ make <target> ## here the target is the kernel found in the CMakeLists.txt
     With the CMake extension, VSCode automatically detect and configure the CMake project with the `CMakeLists.txt` provided in the repo. You can simply use the VSCode CMake extension GUI to build and run the project. 
 
 !!! Note
-    Kernels in DP-HLS framework are tested on CentOS7 with AMD Xilinx Vitis 2021.2, the OS and toolchain which comes with the AWS FPGA Developer AMI. We would suggest this platform to build and run the DP-HLS kernels because it comes with the device license in AMD Xilinx Vitis and Vivado for the FPGA device on AWS F1 instances. 
+    Kernels in DP-HLS framework are tested on CentOS7 with AMD Vitis 2021.2, the OS and toolchain which comes with the AWS FPGA Developer AMI. We would suggest this platform to build and run the DP-HLS kernels because it comes with the device license in AMD Vitis and Vivado for the FPGA device on AWS F1 instances. 
     
     If you are not using the specified AMI, then you need to set the `HLS_HOME` variable in `CMakeLists.txt` to point to the customized Vitis HLS installation path so CMake can find the correct include and link path. 
 
@@ -899,12 +899,12 @@ int main(int argc, char **argv) {
 
 We have provided some scripts to run the synthesis and cosimulation of the kernels. For that, you need to have `Python: Version > 3.6` installed in your system. 
 
-Kernels in DP-HLS framework are tested on CentOS7 with AMD Xilinx Vitis 2021.2, the OS and toolchain which comes with the AWS FPGA Developer AMI. 
+Kernels in DP-HLS framework are tested on CentOS7 with AMD Vitis 2021.2, the OS and toolchain which comes with the AWS FPGA Developer AMI. 
 You can use any AWS machine to synthesis the kernel as long as it's compatible with the FPGA developer AMI. We used 8-core Amazon EC2 z1d instances for the implementation of DP-HLS kernel.
 
 ### Step 3: Configure the project using JSON file
 
-We provide a set of Python scripts with the DP-HLS repository to streamline the AMD Xilinx Vitis HLS project creation, synthesis, and implementation. Those scripts are in the `py-hls` folder. 
+We provide a set of Python scripts with the DP-HLS repository to streamline the AMD Vitis HLS project creation, synthesis, and implementation. Those scripts are in the `py-hls` folder. 
 
 Those scripts require JSON configuration file as input. Following example shows how to configure the JSON file with the explanation of all parameters. This JSON file below has prefilled parameters for the global affine kernel. Similarly, you need to do it for your own custom kernel.
 
@@ -984,7 +984,7 @@ output_dir/
 
 ### Step 4: Synthesize the kernel
 
-To run the python script which streamline the AMD Xilinx Vitis HLS project creation, synthesis, and implementations, run the following command:
+To run the python script which streamline the AMD Vitis HLS project creation, synthesis, and implementations, run the following command:
 
 ```bash
 python py-hls/auto_cosim.py --config <path_to_the_json_config> --simulate True

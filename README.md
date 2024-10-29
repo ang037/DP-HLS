@@ -27,11 +27,9 @@
 
 Welcome to the official repository of DP-HLS, a framework designed to accelerate algorithms based on the 2-D Dynamic Programming paradigm using High-Level Synthesis (HLS). 
 
-Built with the [AMD Xilinx Vitis HLS tool](https://docs.amd.com/r/en-US/ug1399-vitis-hls/Introduction), DP-HLS offers a user-friendly template with extensive customization options. This allows you to create and implement FPGA-accelerated kernels tailored to your specific needs, without the necessity of deep RTL design expertise.
+Built with the [AMD Vitis HLS tool](https://docs.amd.com/r/en-US/ug1399-vitis-hls/Introduction), DP-HLS offers a user-friendly template with extensive customization options. This allows you to create and implement FPGA-accelerated kernels tailored to your specific needs, without the necessity of deep RTL design expertise.
 
 With the DP-HLS framework, you can develop efficient DP-based kernels that achieves performance comparable to its hand-coded RTL version, all within a development timeframe of just a few days, and deploy them on [Amazon EC2 F1 FPGA](https://aws.amazon.com/ec2/instance-types/f1/) instances.
-
-**For more detailed information on all the features and settings of DP-HLS, please refer to our [Wiki](https://turakhialab.github.io/DP-HLS/).**
 
 <div align="center">
 
@@ -39,13 +37,17 @@ With the DP-HLS framework, you can develop efficient DP-based kernels that achie
 
 </div>
 
-Figure above shows front-end design of DP-HLS with features and steps to customize kernels. 
+<figcaption>Figure above shows front-end design of DP-HLS with features and steps to customize kernels.</figcaption>
 
 <br>
 
+### For more detailed information on all the features and settings of DP-HLS, please refer to our [Wiki](https://turakhialab.github.io/DP-HLS/).
+
+
+
 ## <a name="start"></a>Getting Started
 
-To create, customize and deploy your own kernel on FPGA using DP-HLS framwork, it requires a series of steps to be executed. We have already developed pre-built templates of some of the well known algorithms mentioned in table 1 of [Wiki](https://turakhialab.github.io/DP-HLS/). These pre-built templates are simulated using standard C++, synthesized using AMD Xilinx Vitis HLS 2021.1 toolchain on 8-core Amazon EC2 z1d instance and deployed on Amazon EC2 F1 instance based FPGA.
+To create, customize and deploy your own kernel on FPGA using DP-HLS framwork, it requires a series of steps to be executed. We have already developed pre-built templates of some of the well known algorithms mentioned in table 1 of [Wiki](https://turakhialab.github.io/DP-HLS/). These pre-built templates are simulated using standard C++, synthesized using AMD Vitis HLS 2021.1 toolchain on 8-core Amazon EC2 z1d instance and deployed on Amazon EC2 F1 instance based FPGA.
 
 The following sections mentions the steps to quickly simulate, synthesize and deploy global affine kernel which incorporates Needleman-Wunsch algorithm with affine gap penalty. Similar steps need to be followed for other pre-built kernel templates as well. 
 
@@ -130,7 +132,7 @@ After completion of this step, an `.xclbin` file will be generated which is the 
 
 ### <a name="deploy"></a> Step 5: Deploy the kernel on FPGA.
 
-Once the compilation is done and the `.xclbin` bitsteram is generated, you need to create an AFI to deploy the kernel. This can be done on any platform. However, we prefer using AWS instances which has AWS FPGA Developer AMI containing AMD Xilinx Vitis 2021.2.  
+Once the compilation is done and the `.xclbin` bitsteram is generated, you need to create an AFI to deploy the kernel. This can be done on any platform. However, we prefer using AWS instances which has AWS FPGA Developer AMI containing AMD Vitis 2021.2.  
 
 First you need to create a S3 bucket for the design checkpoint (DCP) and the logs. 
 
