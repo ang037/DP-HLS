@@ -74,11 +74,11 @@ The back-end component of the DP-HLS framework contains a fixed set of HLS direc
 new algorithms. To implement any custom algorithm, only the scoring functions and a few parameters need to be modified without requiring an in-depth RTL or digital design experience.
 2. **Easy deployment into hardware**: The framework allows the user to implement highly customized FPGA kernels to deploy within days, whereas developing in HDL takes months.
 3. **Supports complex 2-D DP based algorithms**: DP-HLS supports the creation of Viterbi Algorithm, Multiple Sequence Alignment and Dynamic Time Warping Algorithm based kernels in a common framework for the first time. 
-4. **Faster kernels compared to baselines**: DP-HLS based kernel implementation showed up to 32x improvements in throughput over CPU baselines and comparable results (within XX to XX margin) to hand-crafted RTL implementations, with the added benefit of easier design configurability.
+4. **Faster kernels compared to baselines**: DP-HLS based kernel implementation showed up to 32x improvements in throughput over CPU baselines and comparable results (within 7.7% to 16.8% margin) to hand-crafted RTL implementations, with the added benefit of easier design configurability.
 
 ## Quick Start
 
-To create, customize and deploy your own kernel on FPGA using DP-HLS framwork, it requires a series of steps to be executed. We have already developed pre-built templates of some of the well known algorithms listed in table 1. These pre-built templates are simulated using standard C++, synthesized using AMD Xilinx Vitis HLS 2021.1 toolchain on 8-core Amazon EC2 z1d instance and deployed on Amazon EC2 F1 instance based FPGA.
+To create, customize and deploy your own kernel on FPGA using DP-HLS framwork, it requires a series of steps to be executed. We have already developed pre-built templates of some of the well known algorithms listed in table 1. These pre-built templates are simulated using standard C++, synthesized using AMD Xilinx Vitis HLS 2021.2 toolchain on 8-core Amazon EC2 z1d instance and deployed on Amazon EC2 F1 instance based FPGA.
 
 The following sections mentions the steps to quickly simulate, synthesize and deploy global affine kernel which incorporates Needleman-Wunsch algorithm with affine gap penalty. Similar steps need to be followed for other pre-built kernel templates as well. To create and execute your own custom kernel, please refer to the sections which describes all possible commands and parameters supported by DP-HLS - [Customize new kernels](#customize-new-kernels), [Build and simulate new kernels](#build-and-simulate-new-kernels) and [Synthesize and deploy new kernels](#synthesize-and-deploy-new-kernels). 
 
@@ -1022,9 +1022,15 @@ output_dir/
 
 #### Analyze the output using GUI
 
-To inspect the reports of Vitis HLS Co-Simulation and Implementation visually using GUI, please open Vitis HLS GUI and select "open project" to open the folder `global_affine_256_256_16_8_1` under the path specified for `vitis_hls/output_path` in the config (different from the compile output path). 
+To inspect the reports of Vitis HLS Co-Simulation and Implementation visually using GUI, please open Vitis HLS GUI and select "open project" to open the folder `global_affine_256_256_16_8_1` under the path specified for `vitis_hls/output_path` in the config (different from the compile output path). Then you can find the time line trace for the cosimulation as well as the implementation (if `export_design=1` in `config.json`) resource utilization and timing. 
 
-TBD
+<div align="center">
+
+<img src="images/Vitis_HLS docs timeline trace.png"/>
+
+<figcaption>Co-Simulation Timeline Trace view in Vitis HLS GUI for Global Affine 16PE and 8 Blocks</figcaption>
+
+</div>
 
 ### Step 5: Generate the bitstream
 
