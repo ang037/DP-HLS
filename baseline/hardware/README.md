@@ -8,13 +8,15 @@
 #### Clone DP-HLS Repository
 Cloning DP-HLS clones the baseline repositories required (see Baseline Tools section)
 ```
-git clone --recursive https://github.com/TurakhiaLab/DP-HLS.git
+git clone https://github.com/TurakhiaLab/DP-HLS.git
 cd DP-HLS/baseline/hardware
 ```
 
 #### Running the Baseline
 To get the throughput metric for GACT, run the following:
 ```
+git clone https://github.com/yatisht/darwin.git
+mv GACT/tb_GACTTop.v darwin/RTL/GACT/
 cd darwin/RTL/GACT
 
 iverilog -o tb_GACTTop tb_GACTTop.v GACTTop.v BRAM.v FIFOWithCount.v SmithWatermanArray.v SmithWatermanPE.v Ascii2Nt.v BTLogic.v DP_BRAM.v Nt2Param.v mux_1OfN.v 
@@ -29,6 +31,8 @@ Add all tb_GACTTop associated signals by clicking on the drop down button in the
 
 To get the throughput metric for BSW, run the following:
 ```
+git clone https://github.com/gsneha26/Darwin-WGA.git
+mv BSW/tb_BSW_ArrayTop.v Darwin-WGA/src/hdl/BSW
 cd Darwin-WGA/src/hdl/BSW
 
 iverilog -o tb_BSW_ArrayTop tb_BSW_ArrayTop.v BSW_Array.v BSW_ArrayTop.v BSW_AXISlave.v BSW_PE.v ../common/BRAM.v ../common/Ascii2Nt.v ../common/DP_BRAM.v ../common/FIFO.v ../common/Nt2Param.v
