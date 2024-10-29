@@ -31,21 +31,21 @@ Variations in general paradigm of 2-D Dynamic Programming has led to wide variet
 
 | Sl No. | Input Alphabets | Kernels                                      | State-of-the-art Tools            | Applications                        | Modifications in DP-HLS               |
 |--------|-----------------|----------------------------------------------|-----------------------------------|-------------------------------------|----------------------------------------|
-| 1      | DNA             | Global Linear Alignment (Needleman-Wunsch)   | BLAST, LASTZ                      | Similarity Search                   |                                        |
-| 2      | DNA             | Global Affine Alignment (Gotoh)              | BLAST, LASTZ                      | Similarity Search with gaps         | Scoring                                |
-| 3      | DNA             | Local Linear Alignment (Smith-Waterman)      | BLAST, FASTA, LASTZ               | Gene finding, Motif detection       | Initialization and Traceback           |
-| 4      | DNA             | Local Affine Alignment (Smith-Waterman Gotoh)| BLAST, FASTA, LASTZ               | Gene finding, Motif detection       | Scoring, Initialization and Traceback  |
-| 5      | DNA             | Global Two-piece Affine Alignment            | Minimap2                          | Long Read Alignment                 | Scoring                                |
-| 6      | DNA             | Overlap Alignment                            | WGA Tools (CANU, Flye)            | Whole Genome Assembly               | Initialization and Traceback           |
-| 7      | DNA             | Semi-global Alignment                        | BWA-MEM                           | Whole Genome Assembly               | Initialization and Traceback           |
-| 8      | Seq. Profiles   | Profile Alignment                            | CLUSTALW, MUSCLE                  | Multiple Sequence Alignment         | Sequence Alphabet and Scoring          |
-| 9      | Complex Nos.    | Dynamic Time Wrapping Algorithm (DTW)        | SquiggleKit                       | Basecalling                         | Sequence Alphabet and Scoring          |
-| 10     | DNA             | Viterbi Algorithm (PairHMM)                  | HMMER                             | Remote Homology Search              | Scoring (no Traceback)                 |
-| 11     | DNA             | Banded Local Linear Alignment                | BLAST, Bowtie                     | Fast local alignment                | Scoring and Initialization             |
-| 12     | DNA             | Banded Local Affine Alignment                | Minimap2                          | Long read alignment                 | Initialization, Scoring (no Traceback) |
-| 13     | DNA             | Banded Two-piece Affine Alignment            | Minimap2                          | Long read alignment                 | Scoring, Initialization and Traceback  |
-| 14     | Integers        | Semi-global DTW (sDTW)                       | SquiggleFilter, RawHash           | Basecalling                         | Sequence Alphabet and Scoring          |
-| 15     | Amino acids     | Local Linear Alignment with protein sequences| EMBOSS Water, BLASTp              | Protein Local Alignment             | Sequence Alphabet and Scoring          |
+| 1      | DNA             | Global Linear Alignment (Needleman-Wunsch)   | [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&PAGE_TYPE=BlastSearch&LINK_LOC=blasthome), [EMBOSS Stretcher](https://www.ebi.ac.uk/jdispatcher/psa/emboss_stretcher?stype=dna&matrix=EDNAFULL&gapopen=16&gapext=4)                      | Similarity Search                   |                                        |
+| 2      | DNA             | Global Affine Alignment (Gotoh)              | [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&PAGE_TYPE=BlastSearch&LINK_LOC=blasthome), [EMBOSS Needle](https://www.ebi.ac.uk/jdispatcher/psa/emboss_needle?stype=dna&matrix=EDNAFULL)                      | Similarity Search with gaps         | Scoring                                |
+| 3      | DNA             | Local Linear Alignment (Smith-Waterman)      | [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&PAGE_TYPE=BlastSearch&LINK_LOC=blasthome), [FASTA](https://www.ebi.ac.uk/jdispatcher/sss/fasta/nucleotide), [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat)               | Gene finding, Motif detection       | Initialization and Traceback           |
+| 4      | DNA             | Local Affine Alignment (Smith-Waterman-Gotoh)| [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&PAGE_TYPE=BlastSearch&LINK_LOC=blasthome), [LASTZ](https://www.bx.psu.edu/~rsharris/lastz/)               | Gene finding, Motif detection       | Scoring, Initialization and Traceback  |
+| 5      | DNA             | Global Two-piece Affine Alignment            | [Minimap2](https://github.com/lh3/minimap2)                          | Long Read Alignment                 | Scoring                                |
+| 6      | DNA             | Overlap Alignment                            | [CANU](https://canu.readthedocs.io/en/latest/tutorial.html), [Flye](https://github.com/mikolmogorov/Flye)            | Whole Genome Assembly               | Initialization and Traceback           |
+| 7      | DNA             | Semi-global Alignment                        | [BWA-MEM](https://bio-bwa.sourceforge.net/)                           | Whole Genome Assembly               | Initialization and Traceback           |
+| 8      | Seq. Profiles   | Profile Alignment                            | [CLUSTALW](https://www.genome.jp/tools-bin/clustalw), [MUSCLE](https://www.ebi.ac.uk/jdispatcher/msa/muscle?stype=protein)                  | Multiple Sequence Alignment         | Sequence Alphabet and Scoring          |
+| 9      | Complex Nos.    | Dynamic Time Wrapping Algorithm (DTW)        | [SquiggleKit](https://github.com/Psy-Fer/SquiggleKit)                       | Basecalling                         | Sequence Alphabet and Scoring          |
+| 10     | DNA             | Viterbi Algorithm (PairHMM)                  | [HMMER](http://hmmer.org/), [Augustus](https://bioinf.uni-greifswald.de/augustus/)                             | Remote Homology Search              | Scoring (no Traceback)                 |
+| 11     | DNA             | Banded Global Linear Alignment                | [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&PAGE_TYPE=BlastSearch&LINK_LOC=blasthome), [Bowtie](https://bowtie-bio.sourceforge.net/index.shtml)                     | Fast local alignment                | Scoring and Initialization             |
+| 12     | DNA             | Banded Local Affine Alignment                | [Minimap2](https://github.com/lh3/minimap2)                          | Long read alignment                 | Initialization, Scoring (no Traceback) |
+| 13     | DNA             | Banded Global Two-piece Affine Alignment            | [Minimap2](https://github.com/lh3/minimap2)                          | Long read alignment                 | Scoring, Initialization and Traceback  |
+| 14     | Integers        | Semi-global DTW (sDTW)                       | [SquiggleFilter](https://github.com/TimD1/SquiggleFilter), [RawHash](https://github.com/CMU-SAFARI/RawHash)           | Basecalling                         | Sequence Alphabet and Scoring          |
+| 15     | Amino acids     | Local Linear Alignment with protein sequences| [EMBOSS Water](https://www.ebi.ac.uk/jdispatcher/psa/emboss_water), [BLASTp](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastp&PAGE_TYPE=BlastSearch&BLAST_SPEC=&LINK_LOC=blasttab&LAST_PAGE=blastn), [DIAMOND](https://github.com/bbuchfink/diamond)              | Protein Local Alignment             | Sequence Alphabet and Scoring          |
 
 
 ### DP-HLS Framework
@@ -54,6 +54,8 @@ Variations in general paradigm of 2-D Dynamic Programming has led to wide variet
 
 <img src="images/dp-hls_poster.png"width="200" height="350" />
 
+<figcaption>Image above shows steps of execution from user configuration to deployment of kernels</figcaption>
+
 </div>
 
 </br>
@@ -61,6 +63,8 @@ Variations in general paradigm of 2-D Dynamic Programming has led to wide variet
 <div align="center">
 
 <img src="images/hls_frontend.png"width="600" height="350" />
+
+<figcaption>Image above illustrates the layout of DP-HLS Front-end component with customizable and parallelizable blocks</figcaption>
 
 </div>
 
@@ -374,9 +378,9 @@ The second step after initialization is the scoring of the DP matrix. To execute
 
 Specify the recurrence equations for computing the score
 and traceback pointer for a single cell (i, j), located at row
-i and column j of the DP matrix, in a specific function, `PE_func`. 
+`i` and column `j` of the DP matrix, in a specific function, `PE_func`. 
 
-The following example code shows the scoring equations computed by PEs for the Local Linear kernel. The arrays `dp_mem_up`, `dp_mem_diag`, and `dp_mem_left`, are the inputs to `PE_func` and populated with cell scores automatically by the DP-HLS backend for cells at positions up (i-1, j), diagonal (i-1, j-1) and left (i, j-1) of the current cell (i, j). Likewise, the i𝑡h query character and the j𝑡ℎ reference character are also automatically available to the input of `PE_func` as `lc_qry_val` and `lc_ref_val`, respectively. At the end of the function call, valid scores and traceback pointers for cell (i, j) must be stored to `wt_scr` and `wt_tbp`.
+The following example code shows the scoring equations computed by PEs for the Local Linear kernel. The arrays `dp_mem_up`, `dp_mem_diag`, and `dp_mem_left`, are the inputs to `PE_func` and populated with cell scores automatically by the DP-HLS backend for cells at positions up (i-1, j), diagonal (i-1, j-1) and left (i, j-1) of the current cell (i, j). Likewise, the i<sup>th</sup> query character and the j<sup>th</sup> reference character are also automatically available to the input of `PE_func` as `lc_qry_val` and `lc_ref_val`, respectively. At the end of the function call, valid scores and traceback pointers for cell (i, j) must be stored to `wt_scr` and `wt_tbp`.
 
 ```cpp
 // Inside Local Linear PE_func
@@ -434,11 +438,11 @@ tb_state = TB_STATE :: MM ;
 
 ### Step 6: Specify Parallelism
 
-Each kernel in DP-HLS consists of NB blocks, which concurrently execute distinct pairs of input sequences, each having NPE number of PEs. These blocks are identical in terms of hardware implementation, ensuring uniform performance across all blocks. To exploit the resources for maximum throughput, DP-HLS allows multiple blocks to be executed in single hardware device. DP-HLS also allows user to integrate and execute different types of kernels (Nk number of heterogenous kernels), each having NB blocks. 
+Each kernel in DP-HLS consists of N<sub>B</sub> blocks, which concurrently execute distinct pairs of input sequences, each having N<sub>PE</sub> number of PEs. These blocks are identical in terms of hardware implementation, ensuring uniform performance across all blocks. To exploit the resources for maximum throughput, DP-HLS allows multiple blocks to be executed in single hardware device. DP-HLS also allows user to integrate and execute different types of kernels (N<sub>K</sub> number of heterogenous kernels), each having N<sub>B</sub> parallel blocks. 
 
-The parameter NPE determines the level of inner-loop parallelism for a single pair of sequences. DP-HLS also exploits outer-loop parallelism across multiple sequence pairs by setting the parameters NB and NK.
+The parameter N<sub>PE</sub> determines the level of inner-loop parallelism for a single pair of sequences. DP-HLS exploits outer-loop parallelism across multiple sequence pairs by setting the parameters N<sub>B</sub> and N<sub>K</sub>.
 
-The values of NPE, NB and NK are all customizable by the users. 
+The values of N<sub>PE</sub>, N<sub>B</sub> and N<sub>K</sub> are all customizable by the users. 
 
 ## Build and simulate new kernels
 
@@ -939,9 +943,9 @@ Those scripts require JSON configuration file as input. Following example shows 
 #### JSON Parameters Explained
 - `size`: Related to the size of the kernel. 
 	- `max_problem_size`: Defines the `MAX_QUERY_LENGTH` and `MAX_REFERENCE_LENGTH`. 
-	- `pe_num`: Number of PE in a block. 
-	- `blocks`: Number of blocks in a kernel. 
-	- `cu`: Number of compute units linked in a FPGA bitsteram. 
+	- `pe_num`: Number of PE in a block (N<sub>PE</sub>). 
+	- `blocks`: Number of blocks in a kernel (N<sub>B</sub>). 
+	- `cu`: Number of compute units linked in a FPGA bitsteram (N<sub>K</sub>). 
 - `kernel`: Related to the kernel name and clock frequency. 
 	- `name`: This sets the name of your custom kernel. Currently the name `seq_align_mulitple_static` is supported. 
 	- `clock_frequency`: This sets the target clock frequency. If the design can't meet this clock frequency, then it will be lowered automatically in the kernel linking stage.
@@ -1028,7 +1032,7 @@ To inspect the reports of Vitis HLS Co-Simulation and Implementation visually us
 
 <img src="images/Vitis_HLS docs timeline trace.png"/>
 
-<figcaption>Co-Simulation Timeline Trace view in Vitis HLS GUI for Global Affine 16PE and 8 Blocks</figcaption>
+<figcaption>Co-Simulation Timeline Trace view in Vitis HLS GUI for Global Affine kernel (N<sub>PE</sub>=16 and N<sub>B</sub>=8)</figcaption>
 
 </div>
 
