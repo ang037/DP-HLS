@@ -177,3 +177,5 @@ Once you are on the F1 instance, after you can access the compiled bitstream, yo
 ## <a name="citation"></a> Citing DP-HLS
 
 If you use DP-HLS in your research or publications, please cite the following paper:
+
+Y. Cao, A. Gupta, J. Liang, and Y. Turakhia, “DP-HLS: A high-level synthesis framework for accelerating dynamic programming algorithms in bioinformatics,” 2024. [Online]. Available: https://arxiv.org/abs/2411.03398
