@@ -6,8 +6,9 @@
 3. **sdsl:** >= `3.0.3`
 
 #### CPU Baseline Quick Start
+
+Clone the repository and run the following commands:
 ```
-git clone https://github.com/TurakhiaLab/DP-HLS.git
 cd DP-HLS/baseline/software
 git clone --recurse-submodules https://github.com/seqan/seqan3.git
 git clone https://github.com/lh3/minimap2.git

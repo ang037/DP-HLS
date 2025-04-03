@@ -40,17 +40,11 @@ With the DP-HLS framework, you can develop efficient DP-based kernels that achie
 
 <br>
 
-### For more detailed information on all the features and settings of DP-HLS, please refer to our [Wiki](https://turakhialab.github.io/DP-HLS/).
-
-
-
 ## <a name="start"></a>Getting Started
 
-To create, customize and deploy your own kernel on FPGA using DP-HLS framwork, it requires a series of steps to be executed. We have already developed pre-built templates of some of the well known algorithms mentioned in table 1 of [Wiki](https://turakhialab.github.io/DP-HLS/). These pre-built templates are simulated using standard C++, synthesized using AMD Vitis HLS 2021.1 toolchain on 8-core Amazon EC2 z1d instance and deployed on Amazon EC2 F1 instance based FPGA.
+To create, customize and deploy your own kernel on FPGA using DP-HLS framwork, it requires a series of steps to be executed. We have already developed pre-built templates of some of the well known algorithms mentioned in table 1 of the manuscript. These pre-built templates are simulated using standard C++, synthesized using AMD Vitis HLS 2021.1 toolchain on 8-core Amazon EC2 z1d instance and deployed on Amazon EC2 F1 instance based FPGA.
 
 The following sections mentions the steps to quickly simulate, synthesize and deploy global affine kernel which incorporates Needleman-Wunsch algorithm with affine gap penalty. Similar steps need to be followed for other pre-built kernel templates as well. 
-
-To create and execute your own custom kernel, please refer to the these sections in [Wiki](https://turakhialab.github.io/DP-HLS/) which describes all possible commands and parameters supported by DP-HLS - [Customize new kernels](https://turakhialab.github.io/DP-HLS/#customize-new-kernels), [Build and simulate new kernels](https://turakhialab.github.io/DP-HLS/#build-and-simulate-new-kernels) and [Synthesize and deploy new kernels](https://turakhialab.github.io/DP-HLS/#synthesize-and-deploy-new-kernels). 
 
 ### <a name="instance"></a> Step 0: Create AWS instance.
 
@@ -61,11 +55,7 @@ To use our DP-HLS framework quickly to build and run the kernels, it would be pr
 The DP-HLS repo can be cloned using the following commands.
 
 ```bash
-git clone https://github.com/TurakhiaLab/DP-HLS.git
-```
-or `ssh` to :
-```bash
-git clone git@github.com:TurakhiaLab/DP-HLS.git
+git clone https://github.com/anonymous/DP-HLS.git
 ```
 
 ### <a name="install"></a> Step 2: Install the required dependencies.

@@ -7,10 +7,7 @@
 
 #### Clone DP-HLS Repository
 Cloning DP-HLS clones the baseline repositories required (see Baseline Tools section)
-```
-git clone https://github.com/TurakhiaLab/DP-HLS.git
-cd DP-HLS/baseline/hardware
-```
+
 
 #### Running the Baseline
 To get the throughput metric for GACT, run the following:
