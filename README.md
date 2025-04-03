@@ -52,12 +52,6 @@ To use our DP-HLS framework quickly to build and run the kernels, it would be pr
 
 ### <a name="clone"></a> Step 1: Clone the DP-HLS repository.
 
-The DP-HLS repo can be cloned using the following commands.
-
-```bash
-git clone https://github.com/anonymous/DP-HLS.git
-```
-
 ### <a name="install"></a> Step 2: Install the required dependencies.
 
 Please make sure the following dependencies are installed in your system.
