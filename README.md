@@ -26,9 +26,9 @@
 
 Welcome to the official repository of DP-HLS, a framework designed to accelerate algorithms based on the 2-D Dynamic Programming paradigm using High-Level Synthesis (HLS). 
 
-Built with the [AMD Vitis HLS tool](https://docs.amd.com/r/en-US/ug1399-vitis-hls/Introduction), DP-HLS offers a user-friendly template with extensive customization options. This allows you to create and implement FPGA-accelerated kernels tailored to your specific needs, without the necessity of deep RTL design expertise.
+Built with the [AMD Vitis HLS tool](https://docs.amd.com/r/en-US/ug1399-vitis-hls/Introduction), DP-HLS offers a user-friendly template with extensive customization options. This allows you to create and implement FPGA-accelerated kernels tailored to your specific needs, without the necessity of RTL design expertise.
 
-With the DP-HLS framework, you can develop efficient DP-based kernels that achieves performance comparable to its hand-coded RTL version, all within a development timeframe of just a few days, and deploy them on [Amazon EC2 F1 FPGA](https://aws.amazon.com/ec2/instance-types/f1/) instances.
+With the DP-HLS framework, you can develop efficient DP-based kernels that achieve performance comparable to its hand-coded RTL version, all within a development timeframe of just a few days, and deploy them on [Amazon EC2 F1 FPGA](https://aws.amazon.com/ec2/instance-types/f1/) instances.
 
 <div align="center">
 
