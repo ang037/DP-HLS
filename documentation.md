@@ -108,7 +108,7 @@ For the execution of dynamic programming, the first row and column of the 2-D DP
 
 <div align="center">
 
-<img src="/background_variation_traceback.png" style="height: 420px; width: 500;">
+<img src="background_variation_traceback.png" style="height: 420px; width: 500;">
 
 </div>
 
@@ -906,7 +906,7 @@ To inspect the reports of Vitis HLS Co-Simulation and Implementation visually us
 
 <div align="center">
 
-<img src="images/Vitis_HLS docs timeline trace.png"/>
+<img src="Vitis_HLS_docs_timeline_trace.png"/>
 
 <figcaption>Co-Simulation Timeline Trace view in Vitis HLS GUI for Global Affine kernel (N<sub>PE</sub>=16 and N<sub>B</sub>=8)</figcaption>
 
