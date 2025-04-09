@@ -30,7 +30,7 @@ Built with the [AMD Vitis HLS tool](https://docs.amd.com/r/en-US/ug1399-vitis-hl
 
 With the DP-HLS framework, you can develop efficient DP-based kernels that achieve performance comparable to its hand-coded RTL version, all within a development timeframe of just a few days, and deploy them on [Amazon EC2 F1 FPGA](https://aws.amazon.com/ec2/instance-types/f1/) instances.
 
-For more detailed information on all the features and settings of DP-HLS, please refer to our [Wiki](documentation.md).
+## For more detailed information on all the features and settings of DP-HLS, please refer to our [Wiki](documentation.md).
 
 <div align="center">
 
