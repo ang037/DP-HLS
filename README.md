@@ -19,6 +19,7 @@
   - [Build and simulate the kernel](#custom)
   - [Synthesize the kernel](#synthesize)
   - [Deploy the kernel on FPGA](#deploy)
+- [Advanced features](documentation.md)
 
 <br>
 
@@ -154,5 +155,7 @@ Once you are on the F1 instance, after you can access the compiled bitstream, yo
 ```bash
 ./dp-hls_host global_affine.awsxclbin
 ```
+
+## For more detailed information on all the features and settings of DP-HLS, please refer to our [Wiki](documentation.md). 
 
 **Happy coding with DP-HLS!**
